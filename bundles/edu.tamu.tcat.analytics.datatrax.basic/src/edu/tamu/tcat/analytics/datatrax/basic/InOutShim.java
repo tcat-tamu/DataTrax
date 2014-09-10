@@ -1,4 +1,4 @@
-package edu.tamu.tcat.analytics.datatrax.impl;
+package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.Objects;
 import java.util.function.Consumer;

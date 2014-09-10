@@ -1,4 +1,4 @@
-package edu.tamu.tcat.analytics.datatrax.impl;
+package edu.tamu.tcat.analytics.datatrax.basic;
 
 public class FactoryConfigurationException extends Exception
 {
