@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Core DataTrax Framework
+Bundle-SymbolicName: edu.tamu.tcat.analytics.datatrax.basic;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Texas A&M Engineering Experiment Station
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: edu.tamu.tcat.analytics.datatrax,
+ org.eclipse.core.runtime;version="3.4.0",
+ org.osgi.framework;version="1.8.0"
