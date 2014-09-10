@@ -4,6 +4,7 @@ import java.util.List;
 
 public class WorkflowConfiguration
 {
+   // FIXME this seems like it should be a transformer configuration
    public List<FactoryConfiguration> factories;
    
    public WorkflowConfiguration()
