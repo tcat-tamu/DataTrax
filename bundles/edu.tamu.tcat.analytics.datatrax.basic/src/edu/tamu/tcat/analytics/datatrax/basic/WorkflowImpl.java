@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
-import edu.tamu.tcat.analytics.datatrax.FactoryConfiguration;
 import edu.tamu.tcat.analytics.datatrax.InvalidTransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.TransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
