@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.IContributor;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
 import edu.tamu.tcat.analytics.datatrax.basic.FactoryConfigurationException;
 
@@ -14,14 +15,14 @@ import edu.tamu.tcat.analytics.datatrax.basic.FactoryConfigurationException;
  * and interacting with that factory. 
  *
  */
-public class TransformerFactoryDefinition
+public class ExtTransformerFactoryDefinition implements TransformerFactory
 {
    // TODO handle un-registration of the defining plugin 
    private final String id;
    private final String title;
    private final IConfigurationElement config;
    
-   public TransformerFactoryDefinition(IConfigurationElement e)
+   public ExtTransformerFactoryDefinition(IConfigurationElement e)
    {
       config = e;
       id = config.getAttribute("id");
@@ -117,12 +118,12 @@ public class TransformerFactoryDefinition
       return type.isAssignableFrom(declaredOutputType);
    }
    
-   public <IN, OUT> TransformerFactory<IN, OUT> instantiate() throws FactoryConfigurationException
+   public <IN, OUT> Transformer<IN, OUT> instantiate() throws FactoryConfigurationException
    {
       try
       {
          @SuppressWarnings("unchecked") // type information must be known out of band.
-         TransformerFactory<IN, OUT> factory = (TransformerFactory<IN, OUT>)config.createExecutableExtension("class");
+         Transformer<IN, OUT> factory = (Transformer<IN, OUT>)config.createExecutableExtension("class");
          return factory;
       }
       catch (CoreException e)
