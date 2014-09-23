@@ -12,24 +12,34 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IRegistryEventListener;
 import org.eclipse.core.runtime.Platform;
 
-import edu.tamu.tcat.analytics.datatrax.TransformerFactoryProvider;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
 
-public class ExtPointTranformerFactoryProvider implements TransformerFactoryProvider
+/**
+ *  
+ *
+ */
+public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegistry
 {
 
    public static final String EXT_POINT_ID = "edu.tamu.tcat.analytics.datatrax.transformfactories";
 
-   private final ConcurrentMap<String, TransformerFactoryDefinition> factoryDefinitions = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, ExtTransformerFactoryDefinition> factoryDefinitions = new ConcurrentHashMap<>();
 
    private RegistryEventListener ears;
    
-   public ExtPointTranformerFactoryProvider()
+   public ExtPointTranformerFactoryRegistry()
    {
    }
 
+   /**
+    * Initializes this {@link ExtPointTranformerFactoryProvider}. This must be called during 
+    * initial configuration in order to load {@link Transformer} plugins.
+    */
    public void activate()
    {
-      
+      loadExtensions();
    }
    
    public void dispose()
@@ -46,9 +56,15 @@ public class ExtPointTranformerFactoryProvider implements TransformerFactoryProv
    }
    
    /**
-    * Loads all 
+    * Loads all currently registered extensions of the the DataTrax Transformers extension 
+    * point and attaches a listener to the {@link IExtensionRegistry} that will be notified 
+    * when new extensions become available or loaded extensions are removed.
+    * 
+    * <p>
+    * This method is typically called by {@link #activate()} when the {@code ExtPointTranformerFactoryProvider} 
+    * is registered as an OSGi service or when the provider is manually activated.
     */
-   public void loadConfiguration() 
+   private void loadExtensions() 
    {
       IExtensionRegistry registry = Platform.getExtensionRegistry();
       ears = new RegistryEventListener();
@@ -62,9 +78,31 @@ public class ExtPointTranformerFactoryProvider implements TransformerFactoryProv
       }
    }
    
-   public Collection<TransformerFactoryDefinition> getFactories()
+   @Override
+   public Collection<ExtTransformerFactoryDefinition> getFactories()
    {
-      return new ArrayList<TransformerFactoryDefinition>(factoryDefinitions.values());
+      return new ArrayList<ExtTransformerFactoryDefinition>(factoryDefinitions.values());
+   }
+   
+   @Override
+   public TransformerFactory getFactory(String id)
+   {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public <X> Collection<? extends TransformerFactory> getCompatibleFactories(Class<X> sourceType)
+   {
+      throw new UnsupportedOperationException();
+      // TODO Auto-generated method stub
+   }
+
+   @Override
+   public <X> Collection<? extends TransformerFactory> getProducingFactories(Class<X> outputType)
+   {
+      throw new UnsupportedOperationException();
+      // TODO Auto-generated method stub
    }
    
    private class RegistryEventListener implements IRegistryEventListener
@@ -85,7 +123,7 @@ public class ExtPointTranformerFactoryProvider implements TransformerFactoryProv
          
          for (IConfigurationElement e : elements)
          {
-            TransformerFactoryDefinition configuration = new TransformerFactoryDefinition(e);
+            ExtTransformerFactoryDefinition configuration = new ExtTransformerFactoryDefinition(e);
             factoryDefinitions.putIfAbsent(configuration.getId(), configuration);
             
             // TODO log duplicate registration
