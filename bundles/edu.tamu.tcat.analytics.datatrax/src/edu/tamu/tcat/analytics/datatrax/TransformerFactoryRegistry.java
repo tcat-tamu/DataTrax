@@ -11,9 +11,26 @@ import java.util.Collection;
 public interface TransformerFactoryRegistry
 {
 
-   Collection<? extends TransformerFactory> getFactories();
+   Collection<TransformerFactory> getFactories();
+
+   /**
+    * Indicates whether a factory is registered for the provided id. Note that the id under whci 
+    * 
+    * @param id 
+    * @return
+    */
+   boolean isRegistered(String id);
    
-   TransformerFactory getFactory(String id);
+   /**
+    * 
+    * @param id The id of the factory to retrieve.
+    * @return The factory registered under the supplied id. Will not be {@code null}. 
+    * @throws FactoryUnavailableException If a factory is not registered for the supplied 
+    *       {@code id}. Call {@link #isRegistered(String)} to check if the factory is configured
+    *       prior to calling this method.
+    * 
+    */
+   TransformerFactory getFactory(String id) throws FactoryUnavailableException;
    
    /**
     * Retrieves all factories that can accept input data sources of the supplied type. Note 
@@ -23,7 +40,7 @@ public interface TransformerFactoryRegistry
     * @return All currently registered factories that will process data of the supplied 
     *       type. Will not be null, may be empty.
     */
-   <X> Collection<? extends TransformerFactory> getCompatibleFactories(Class<X> sourceType);
+   <X> Collection<TransformerFactory> getCompatibleFactories(Class<X> sourceType);
    
    /**
     * Retrieves all factories that produce output data of the supplied type. Note that the 
@@ -34,7 +51,8 @@ public interface TransformerFactoryRegistry
     * @return All currently registered factories that can convert data into the supplied type. 
     *       Will not be null, may be empty.
     */
-   <X> Collection<? extends TransformerFactory> getProducingFactories(Class<X> outputType);
+   <X> Collection<TransformerFactory> getProducingFactories(Class<X> outputType);
+
    
    
 

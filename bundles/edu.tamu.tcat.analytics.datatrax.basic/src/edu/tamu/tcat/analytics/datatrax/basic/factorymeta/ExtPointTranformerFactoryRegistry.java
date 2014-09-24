@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IRegistryEventListener;
 import org.eclipse.core.runtime.Platform;
 
+import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
@@ -79,27 +80,39 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
    }
    
    @Override
-   public Collection<ExtTransformerFactoryDefinition> getFactories()
+   public Collection<TransformerFactory> getFactories()
    {
-      return new ArrayList<ExtTransformerFactoryDefinition>(factoryDefinitions.values());
+      return new ArrayList<TransformerFactory>(factoryDefinitions.values());
    }
    
    @Override
-   public TransformerFactory getFactory(String id)
+   public boolean isRegistered(String id)
    {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException();
+      ExtTransformerFactoryDefinition factory = factoryDefinitions.get(id);
+      return (factory != null);
+   }
+   
+   @Override
+   public TransformerFactory getFactory(String id) throws FactoryUnavailableException 
+   {
+      ExtTransformerFactoryDefinition factory = factoryDefinitions.get(id);
+      if (factory == null)
+      {
+         throw new FactoryUnavailableException("No factory is registered for id [" + id + "]");
+      }
+      
+      return factory;
    }
 
    @Override
-   public <X> Collection<? extends TransformerFactory> getCompatibleFactories(Class<X> sourceType)
+   public <X> Collection<TransformerFactory> getCompatibleFactories(Class<X> sourceType)
    {
       throw new UnsupportedOperationException();
       // TODO Auto-generated method stub
    }
 
    @Override
-   public <X> Collection<? extends TransformerFactory> getProducingFactories(Class<X> outputType)
+   public <X> Collection<TransformerFactory> getProducingFactories(Class<X> outputType)
    {
       throw new UnsupportedOperationException();
       // TODO Auto-generated method stub
