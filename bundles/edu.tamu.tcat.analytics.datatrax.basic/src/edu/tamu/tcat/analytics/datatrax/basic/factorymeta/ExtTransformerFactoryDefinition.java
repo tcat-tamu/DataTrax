@@ -6,9 +6,9 @@ import org.eclipse.core.runtime.IContributor;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
+import edu.tamu.tcat.analytics.datatrax.FactoryConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
-import edu.tamu.tcat.analytics.datatrax.basic.FactoryConfigurationException;
 
 /**
  * Wraps a transformer factory's plugin metadata declaration to provide an API for querying and 
@@ -29,16 +29,19 @@ public class ExtTransformerFactoryDefinition implements TransformerFactory
       title = config.getAttribute("title");
    }
    
+   @Override
    public String getId()
    {
       return id;
    }
 
+   @Override
    public String getTitle()
    {
       return title;
    }
    
+   @Override
    public Class<?> getDeclaredSourceType()
    {
       String srcType = config.getAttribute("source_type");
@@ -52,6 +55,7 @@ public class ExtTransformerFactoryDefinition implements TransformerFactory
       }
    }
    
+   @Override
    public Class<?> getDeclaredOutputType()
    {
       String outType = config.getAttribute("output_type");
@@ -77,6 +81,7 @@ public class ExtTransformerFactoryDefinition implements TransformerFactory
     *       evaluation of the supplied type. Note that this includes the case when the bundle
     *       that supplies this factory is no longer available.
     */
+   @Override
    public boolean canAccept(Class<?> type) throws FactoryConfigurationException
    {
       // TODO should this be a RuntimeException. The client cannot recover (in general) and 
@@ -92,7 +97,7 @@ public class ExtTransformerFactoryDefinition implements TransformerFactory
       }
       catch (FactoryConfigurationException ex)
       {
-         throw new IllegalStateException("Invalid transormer factory configuration: " + this + ". This may indicate that the providing plugin is no longer available. ", ex);
+         throw new IllegalStateException("Invalid transformer factory configuration: " + this + ". This may indicate that the providing plugin is no longer available. ", ex);
       }
    }
    
@@ -108,6 +113,7 @@ public class ExtTransformerFactoryDefinition implements TransformerFactory
     *       evaluation of the supplied type. Note that this includes the case when the bundle
     *       that supplies this factory is no longer available.
     */
+   @Override
    public boolean canProduce(Class<?> type) throws FactoryConfigurationException
    {
       String srcType = config.getAttribute("output_type");
@@ -118,6 +124,7 @@ public class ExtTransformerFactoryDefinition implements TransformerFactory
       return type.isAssignableFrom(declaredOutputType);
    }
    
+   @Override
    public <IN, OUT> Transformer<IN, OUT> instantiate() throws FactoryConfigurationException
    {
       try
