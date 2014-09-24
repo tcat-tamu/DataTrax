@@ -22,11 +22,13 @@ public interface Transformer<IN, OUT>
    /**
     * @return A type token for the input data type. 
     */
+   @Deprecated // declared by ext, see TransformerFactory
    Class<IN> getSourceType();
    
    /**
     * @return A type token for the output data type. 
     */
+   @Deprecated // declared by ext, see TransformerFactory
    Class<OUT> getOutputType();
    
    /**
