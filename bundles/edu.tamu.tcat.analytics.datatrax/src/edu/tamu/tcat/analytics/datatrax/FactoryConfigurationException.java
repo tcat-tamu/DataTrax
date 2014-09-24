@@ -1,6 +1,9 @@
-package edu.tamu.tcat.analytics.datatrax.basic;
+package edu.tamu.tcat.analytics.datatrax;
 
-public class FactoryConfigurationException extends Exception
+/**
+ * Indicates that a {@link TransformerFactory} has not been properly configured. 
+ */
+public class FactoryConfigurationException extends RuntimeException
 {
 
    public FactoryConfigurationException()
