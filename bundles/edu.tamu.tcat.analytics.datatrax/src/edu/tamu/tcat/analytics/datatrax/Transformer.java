@@ -18,25 +18,22 @@ import java.util.function.Supplier;
  */
 public interface Transformer<IN, OUT>
 {
-   // TODO might provide these as part of the metadata 
    /**
     * @return A type token for the input data type. 
     */
-   @Deprecated // declared by ext, see TransformerFactory
    Class<IN> getSourceType();
    
    /**
     * @return A type token for the output data type. 
     */
-   @Deprecated // declared by ext, see TransformerFactory
    Class<OUT> getOutputType();
    
    /**
     * 
     * @param data
-    * @throws InvalidTransformerConfiguration
+    * @throws TransformerConfigurationException
     */
-   void configure(Map<String, Object> data) throws InvalidTransformerConfiguration;
+   void configure(Map<String, Object> data) throws TransformerConfigurationException;
    
    /**
     * 
