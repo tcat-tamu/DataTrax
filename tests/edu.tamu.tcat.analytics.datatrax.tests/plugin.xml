@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="edu.tamu.tcat.analytics.datatrax.transformfactories">
+      <transformer_factory
+            class="edu.tamu.tcat.analytics.datatrax.tests.MockTransformer"
+            id="edu.tamu.tcat.analytics.datatrax.tests.helloworld"
+            output_type="java.lang.String"
+            source_type="java.lang.String"
+            title="Hello World Transformer">
+      </transformer_factory>
+   </extension>
+
+</plugin>
