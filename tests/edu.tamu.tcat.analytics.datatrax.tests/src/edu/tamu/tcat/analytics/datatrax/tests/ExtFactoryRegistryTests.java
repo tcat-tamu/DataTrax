@@ -12,10 +12,10 @@ import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.tests.internal.Activator;
 import edu.tamu.tcat.osgi.services.util.ServiceHelper;
 
-public class WorkflowConfigTests
+public class ExtFactoryRegistryTests
 {
 
-   public WorkflowConfigTests()
+   public ExtFactoryRegistryTests()
    {
       // TODO Auto-generated constructor stub
    }

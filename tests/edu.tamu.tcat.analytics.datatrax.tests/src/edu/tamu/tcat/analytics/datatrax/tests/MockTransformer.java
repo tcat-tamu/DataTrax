@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import edu.tamu.tcat.analytics.datatrax.InvalidTransformerConfiguration;
+import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 
 public class MockTransformer implements Transformer<String, String>
@@ -29,7 +29,7 @@ public class MockTransformer implements Transformer<String, String>
    }
 
    @Override
-   public void configure(Map<String, Object> data) throws InvalidTransformerConfiguration
+   public void configure(Map<String, Object> data) throws TransformerConfigurationException
    {
    }
 
