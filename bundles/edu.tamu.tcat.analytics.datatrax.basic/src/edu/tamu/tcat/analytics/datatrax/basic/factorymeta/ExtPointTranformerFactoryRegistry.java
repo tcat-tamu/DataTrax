@@ -2,6 +2,8 @@ package edu.tamu.tcat.analytics.datatrax.basic.factorymeta;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -107,15 +109,27 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
    @Override
    public <X> Collection<TransformerFactory> getCompatibleFactories(Class<X> sourceType)
    {
-      throw new UnsupportedOperationException();
-      // TODO Auto-generated method stub
+      Collection<TransformerFactory> matches = new HashSet<>();
+      for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
+      {
+         if (defn.canAccept(sourceType))
+            matches.add(defn);
+      }
+      
+      return Collections.unmodifiableCollection(matches);
    }
 
    @Override
    public <X> Collection<TransformerFactory> getProducingFactories(Class<X> outputType)
    {
-      throw new UnsupportedOperationException();
-      // TODO Auto-generated method stub
+      Collection<TransformerFactory> matches = new HashSet<>();
+      for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
+      {
+         if (defn.canProduce(outputType))
+            matches.add(defn);
+      }
+      
+      return Collections.unmodifiableCollection(matches);
    }
    
    private class RegistryEventListener implements IRegistryEventListener
