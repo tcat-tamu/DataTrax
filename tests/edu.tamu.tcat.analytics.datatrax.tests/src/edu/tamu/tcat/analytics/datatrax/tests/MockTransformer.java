@@ -40,7 +40,7 @@ public class MockTransformer implements Transformer<String, String>
    }
 
    @Override
-   public Runnable create(final Supplier<String> source, final Consumer<String> sink)
+   public Runnable create(final Supplier<? extends String> source, final Consumer<? super String> sink)
    {
       return new Runnable()
       {

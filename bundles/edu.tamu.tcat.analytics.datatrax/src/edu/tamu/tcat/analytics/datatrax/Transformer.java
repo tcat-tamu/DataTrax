@@ -59,7 +59,7 @@ public interface Transformer<IN, OUT>
     * @param sink
     * @return
     */
-   Runnable create(Supplier<IN> source, Consumer<OUT> sink);
+   Runnable create(Supplier<? extends IN> source, Consumer<? super OUT> sink);
    
    // TODO need to provide sub-interface to supplier/consumer that will supply 
    //      pass-through context data for the purpose (for example) of annotation the image 
