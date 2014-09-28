@@ -42,6 +42,7 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
     */
    public void activate()
    {
+      // TODO do async and wait until ready.
       loadExtensions();
    }
    

@@ -23,6 +23,7 @@ public class ExtFactoryRegistryTests
    @Test
    public void testLookupFactory() throws FactoryUnavailableException
    {
+      // TODO should test without appeal to OSGi
       try (ServiceHelper helper = new ServiceHelper(Activator.getDefault().getContext()))
       {
          TransformerFactoryRegistry registry = helper.waitForService(TransformerFactoryRegistry.class, 10_000);
