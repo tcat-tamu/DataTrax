@@ -1,5 +1,6 @@
 package edu.tamu.tcat.analytics.datatrax;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -13,5 +14,5 @@ public class FactoryConfiguration
 {
    public String factoryId;
    
-   public Map<String, Object> configData;
+   public Map<String, Object> configData = new HashMap<>();
 }

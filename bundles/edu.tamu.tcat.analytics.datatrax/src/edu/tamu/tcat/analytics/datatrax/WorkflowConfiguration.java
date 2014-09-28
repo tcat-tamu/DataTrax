@@ -1,22 +1,28 @@
 package edu.tamu.tcat.analytics.datatrax;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+/**
+ * A lightweight data vehicle for defining a sequence of data transformers to pass instance 
+ * values through.  
+ */
 public class WorkflowConfiguration
 {
-   // FIXME this seems like it should be a transformer configuration
-   public List<FactoryConfiguration> factories;
+   public UUID uuid;
+   public String title = "New Workflow";
+   public String description;
+   
+   /**
+    * The Java type of the input instances that can be processed by this workflow configuration. 
+    */
+   public Class<?> sourceType = Object.class;
+   
+   public List<FactoryConfiguration> factories = new ArrayList<>();
    
    public WorkflowConfiguration()
    {
-      // TODO Auto-generated constructor stub
+      uuid = UUID.randomUUID();
    }
-
-   public List<TransformerConfiguration> getTransformers()
-   {
-      // TODO revisit name
-      // TODO Auto-generated method stub
-      return null;
-   }
-
 }
