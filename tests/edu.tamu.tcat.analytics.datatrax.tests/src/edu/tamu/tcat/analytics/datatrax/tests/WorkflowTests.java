@@ -10,10 +10,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
 import edu.tamu.tcat.analytics.datatrax.FactoryConfiguration;
 import edu.tamu.tcat.analytics.datatrax.WorkflowConfiguration;
 import edu.tamu.tcat.analytics.datatrax.WorkflowConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.basic.WorkflowConfigBuilderImpl;
+import edu.tamu.tcat.analytics.datatrax.basic.WorkflowFactoryImpl;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
 import edu.tamu.tcat.analytics.image.integral.datatrax.BufferedImageAdapter;
 import edu.tamu.tcat.dia.binarization.sauvola.FastSauvolaTransformer;
@@ -56,8 +58,7 @@ public class WorkflowTests
       return cfg;
    }
    
-   @Test
-   public void testWorkflowBuilder() throws WorkflowConfigurationException
+   private WorkflowConfiguration buildDefaultConfiguration() throws WorkflowConfigurationException 
    {
       WorkflowConfigBuilderImpl builder = new WorkflowConfigBuilderImpl(registry);
       builder.setTitle("Config Test");
@@ -68,12 +69,45 @@ public class WorkflowTests
       builder.append(createCfg(CCAnalyzer.EXTENSION_ID, null));
 //      builder.append(colorizer);
       
-      WorkflowConfiguration cfg = builder.build();
-      assertNotNull("", cfg);
-      assertEquals("", 3, cfg.factories.size());
+      return builder.build();
+   }
+   
+   // TODO test configuration parameters
+   
+   @Test
+   public void testWorkflowBuilder() throws WorkflowConfigurationException
+   {
+      WorkflowConfiguration cfg = buildDefaultConfiguration();
+      // TODO test name
+      assertNotNull("No workflow configuration was built", cfg);
+      assertEquals("Unexpected number of factories configured", 3, cfg.factories.size());
       
-      assertEquals("", BufferedImageAdapter.EXTENSION_ID, cfg.factories.get(0).factoryId);
-      assertEquals("", FastSauvolaTransformer.EXTENSION_ID, cfg.factories.get(1).factoryId);
-      assertEquals("", CCAnalyzer.EXTENSION_ID, cfg.factories.get(2).factoryId);
+      assertEquals("Cannot find BufferedImageAdapter", BufferedImageAdapter.EXTENSION_ID, cfg.factories.get(0).factoryId);
+      assertEquals("Cannot find FastSauvolaTransformer", FastSauvolaTransformer.EXTENSION_ID, cfg.factories.get(1).factoryId);
+      assertEquals("Cannot find CCAnalyzer", CCAnalyzer.EXTENSION_ID, cfg.factories.get(2).factoryId);
+   }
+   
+   @Test
+   public void testWorkflowCreation() throws WorkflowConfigurationException
+   {
+      WorkflowConfiguration cfg = buildDefaultConfiguration();
+      
+      WorkflowFactoryImpl factory = new WorkflowFactoryImpl();
+      factory.bindFactoryRegistry(registry);
+      
+      DataTransformWorkflow<?, ?> workflow = factory.create(cfg);
+      assertNotNull("Failed to create workflow", workflow);
+   }
+   
+   @Test
+   public void testWorkflowExecution()
+   {
+      
+   }
+   
+   @Test
+   public void testWorkflowConfigSerialization()
+   {
+      
    }
 }
