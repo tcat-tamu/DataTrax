@@ -8,7 +8,7 @@ package edu.tamu.tcat.analytics.datatrax;
 public interface WorkflowFactory
 {
    
-   DataTransformWorkflow<?, ?> create(WorkflowConfiguration config) throws WorkflowConfigurationException;
+   <IN, OUT> DataTransformWorkflow<IN, OUT> create(WorkflowConfiguration config) throws WorkflowConfigurationException;
    
    // TODO provide access to configuration builders, defined configurations, etc. Provide support to ingest new configurations
 }
