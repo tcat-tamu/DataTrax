@@ -9,11 +9,11 @@ import edu.tamu.tcat.analytics.datatrax.FactoryConfiguration;
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.WorkflowConfiguration;
 import edu.tamu.tcat.analytics.datatrax.WorkflowConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.WorkflowFactory;
+import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
+import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtTransformerFactoryDefinition;
 
 /**
  * An implementation 
@@ -26,21 +26,21 @@ import edu.tamu.tcat.analytics.datatrax.WorkflowFactory;
 public class WorkflowFactoryImpl implements WorkflowFactory
 {
 
-   private TransformerFactoryRegistry registry;
+   private ExtPointTranformerFactoryRegistry registry;
    
    public WorkflowFactoryImpl()
    {
       // TODO Auto-generated constructor stub
    }
    
-   public void bindFactoryRegistry(TransformerFactoryRegistry registry)
+   public void bindFactoryRegistry(ExtPointTranformerFactoryRegistry registry)
    {
       this.registry = registry;
    }
    
    
    @Override
-   public DataTransformWorkflow<?, ?> create(WorkflowConfiguration config) throws WorkflowConfigurationException
+   public <IN, OUT> DataTransformWorkflow<IN, OUT> create(WorkflowConfiguration config) throws WorkflowConfigurationException
    {
       // TODO figure out how to create the initial data source provider
       
@@ -75,7 +75,7 @@ public class WorkflowFactoryImpl implements WorkflowFactory
             
       try
       {
-         TransformerFactory factory = registry.getFactory(factoryId);
+         ExtTransformerFactoryDefinition factory = registry.getFactory(factoryId);
          if (!factory.canAccept(expectInputType))
             throw new WorkflowConfigurationException("Invalid worflow configuration. The "
                   + "requested transformer [" + factoryId + " - " + factory.getTitle() + "] "

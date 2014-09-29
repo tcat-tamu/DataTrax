@@ -8,17 +8,18 @@ import edu.tamu.tcat.analytics.datatrax.FactoryConfiguration;
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.WorkflowConfiguration;
 import edu.tamu.tcat.analytics.datatrax.WorkflowConfigurationException;
+import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
+import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtTransformerFactoryDefinition;
 
 public class WorkflowConfigBuilderImpl
 {
 
    private WorkflowConfiguration cfg;
-   private final TransformerFactoryRegistry registry;
+   private final ExtPointTranformerFactoryRegistry registry;
    
-   public WorkflowConfigBuilderImpl(TransformerFactoryRegistry reg)
+   public WorkflowConfigBuilderImpl(ExtPointTranformerFactoryRegistry reg)
    {
       this.registry = reg;
       this.cfg = new WorkflowConfiguration();
@@ -41,7 +42,7 @@ public class WorkflowConfigBuilderImpl
    
    public void append(FactoryConfiguration config) throws WorkflowConfigurationException
    {
-      TransformerFactory candidate = getFactory(config);
+      ExtTransformerFactoryDefinition candidate = getFactory(config);
       checkTypeCompatibility(candidate);
       
       // TODO test supplied configuration.
@@ -154,7 +155,7 @@ public class WorkflowConfigBuilderImpl
       return getFactory(size() - 1);
    }
 
-   private TransformerFactory getFactory(int ix)
+   private ExtTransformerFactoryDefinition getFactory(int ix)
    {
       if (ix < 0 || ix >= size())
          throw new ArrayIndexOutOfBoundsException("Cannot retrieve transformers factory at position [" + ix + "]");
@@ -162,7 +163,7 @@ public class WorkflowConfigBuilderImpl
       return getFactory(cfg.factories.get(ix));
    }
    
-   private TransformerFactory getFactory(FactoryConfiguration config)
+   private ExtTransformerFactoryDefinition getFactory(FactoryConfiguration config)
    {
       try 
       {

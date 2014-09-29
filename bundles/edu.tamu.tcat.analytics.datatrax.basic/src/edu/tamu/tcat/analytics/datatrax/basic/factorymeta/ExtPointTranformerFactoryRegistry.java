@@ -96,7 +96,7 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
    }
    
    @Override
-   public TransformerFactory getFactory(String id) throws FactoryUnavailableException 
+   public ExtTransformerFactoryDefinition getFactory(String id) throws FactoryUnavailableException 
    {
       ExtTransformerFactoryDefinition factory = factoryDefinitions.get(id);
       if (factory == null)

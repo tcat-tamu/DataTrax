@@ -9,6 +9,8 @@ import java.util.function.Consumer;
  */
 public interface TransformerFactory
 {
+   // TODO Rename to TransformerRegistration - provides meta-informatation about a TransformerFactory (currently named Transformer)
+   // NOTE Instantiation of a transformer is an implementation detail (see deprecated method below). 
    /**
     * @return The unique identifier used to register this {@code TransformerFactory} with a 
     *       {@link TransformerFactoryRegistry}. Will not be <code>null</code>.  
@@ -82,6 +84,7 @@ public interface TransformerFactory
     *    application's (for example, if a class provided by an OSGi bundle is no longer 
     *    available to the OSGi class loader).  
     */
+   @Deprecated
    <IN, OUT> Transformer<IN, OUT> instantiate() throws FactoryConfigurationException;
 
 }

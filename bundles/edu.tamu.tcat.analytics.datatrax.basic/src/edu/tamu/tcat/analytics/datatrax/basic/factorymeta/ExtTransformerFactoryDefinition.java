@@ -124,7 +124,6 @@ public class ExtTransformerFactoryDefinition implements TransformerFactory
       return type.isAssignableFrom(declaredOutputType);
    }
    
-   @Override
    public <IN, OUT> Transformer<IN, OUT> instantiate() throws FactoryConfigurationException
    {
       try
