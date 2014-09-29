@@ -1,5 +1,6 @@
 package edu.tamu.tcat.analytics.datatrax.basic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -46,7 +47,30 @@ public class WorkflowImpl<IN, OUT> implements DataTransformWorkflow<IN, OUT>
       return type.isAssignableFrom(getOutputType());
    }
 
-   public void process(Supplier<IN> input, Consumer<OUT> ears)
+   @Override
+   @SuppressWarnings({ "rawtypes", "unchecked" }) // type safety is ensured by workflow construction
+   public void process(Supplier<? extends IN> input, Consumer<? super OUT> ears)
    {
+      List<Runnable> chain = new ArrayList<Runnable>();
+      Supplier src = input;
+      for (int i = 0; i < transformers.size(); i++)
+      {
+         Transformer<?, ?> transformer = transformers.get(i);
+         if (i < transformers.size() - 1) 
+         {
+            InOutShim shim = new InOutShim<>();
+            chain.add(transformer.create(src, shim));
+            src = shim;
+         }
+         else 
+         {
+            chain.add(transformer.create(src, (Consumer)ears));
+         }
+      }
+      
+      for (Runnable link : chain)
+      {
+         link.run();
+      }
    }
 }

@@ -1,5 +1,8 @@
 package edu.tamu.tcat.analytics.datatrax;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 public interface DataTransformWorkflow<IN, OUT>
 {
    // TODO almost certainly should remove the types.
@@ -35,4 +38,6 @@ public interface DataTransformWorkflow<IN, OUT>
     *    output type.
     */
    boolean canProduce(Class<?> type);
+
+   void process(Supplier<? extends IN> input, Consumer<? super OUT> ears);
 }
