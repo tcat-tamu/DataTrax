@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- *  
+ *  Represents the connection between two adjacent transformers in a workflow.
  *
  */
 public class InOutShim<T> implements Supplier<T>, Consumer<T>
@@ -21,7 +21,7 @@ public class InOutShim<T> implements Supplier<T>, Consumer<T>
    {
       synchronized (this)
       {
-         if (value == null)
+         if (value != null)
             throw new IllegalStateException("A value has already been supplied. This Consumer does not accept multiple inputs.");
          
          value = t;
