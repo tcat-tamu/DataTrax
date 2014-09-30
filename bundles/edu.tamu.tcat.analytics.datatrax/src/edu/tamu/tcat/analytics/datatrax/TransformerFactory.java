@@ -1,8 +1,6 @@
 package edu.tamu.tcat.analytics.datatrax;
 
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Defines a configurable algorithm for creating data transformers. 

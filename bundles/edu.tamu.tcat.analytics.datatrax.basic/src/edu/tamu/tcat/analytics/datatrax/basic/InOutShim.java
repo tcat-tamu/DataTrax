@@ -1,8 +1,6 @@
 package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import edu.tamu.tcat.analytics.datatrax.DataSink;
 import edu.tamu.tcat.analytics.datatrax.DataSource;

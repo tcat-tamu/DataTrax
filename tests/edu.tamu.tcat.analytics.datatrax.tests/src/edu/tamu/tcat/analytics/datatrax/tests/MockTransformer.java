@@ -2,8 +2,6 @@ package edu.tamu.tcat.analytics.datatrax.tests;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import edu.tamu.tcat.analytics.datatrax.DataSink;
 import edu.tamu.tcat.analytics.datatrax.DataSource;
