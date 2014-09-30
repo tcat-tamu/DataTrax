@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/edu.tamu.tcat.analytics.datatrax.sdk.feature_1.0.0.qualifier.jar" id="edu.tamu.tcat.analytics.datatrax.sdk.feature" version="1.0.0.qualifier">
+      <category name="edu.tamu.tcat.datatrax"/>
+   </feature>
+   <category-def name="edu.tamu.tcat.datatrax" label="DataTrax">
+      <description>
+         The API and core implementation of the DataTrax framework
+      </description>
+   </category-def>
+</site>
