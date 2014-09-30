@@ -23,12 +23,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
-import edu.tamu.tcat.analytics.datatrax.FactoryConfiguration;
-import edu.tamu.tcat.analytics.datatrax.WorkflowConfiguration;
-import edu.tamu.tcat.analytics.datatrax.WorkflowConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.basic.WorkflowConfigBuilderImpl;
 import edu.tamu.tcat.analytics.datatrax.basic.WorkflowFactoryImpl;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
+import edu.tamu.tcat.analytics.datatrax.config.FactoryConfiguration;
+import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
+import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
 import edu.tamu.tcat.analytics.image.integral.datatrax.BufferedImageAdapter;
 import edu.tamu.tcat.dia.binarization.datatrax.BinaryImageWriter;
 import edu.tamu.tcat.dia.binarization.sauvola.FastSauvolaTransformer;

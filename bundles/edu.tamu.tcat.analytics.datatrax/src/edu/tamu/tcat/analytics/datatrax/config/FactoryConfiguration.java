@@ -1,7 +1,10 @@
-package edu.tamu.tcat.analytics.datatrax;
+package edu.tamu.tcat.analytics.datatrax.config;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 
 /**
  * A data vehicle for representing configuration information about a single 

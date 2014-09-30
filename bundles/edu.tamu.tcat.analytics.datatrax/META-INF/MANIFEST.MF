@@ -5,4 +5,5 @@ Bundle-SymbolicName: edu.tamu.tcat.analytics.datatrax;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: edu.tamu.tcat.analytics.datatrax
+Export-Package: edu.tamu.tcat.analytics.datatrax,
+ edu.tamu.tcat.analytics.datatrax.config

@@ -1,5 +1,8 @@
 package edu.tamu.tcat.analytics.datatrax;
 
+import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
+import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
+
 /**
  * Used to manage workflow configuration data and to generate workflow instances from 
  * existing configuration data. 

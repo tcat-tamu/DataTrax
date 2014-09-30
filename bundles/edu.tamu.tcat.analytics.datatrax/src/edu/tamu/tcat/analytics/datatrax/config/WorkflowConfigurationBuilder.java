@@ -1,6 +1,8 @@
-package edu.tamu.tcat.analytics.datatrax;
+package edu.tamu.tcat.analytics.datatrax.config;
 
 import java.util.List;
+
+import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
 
 /**
  * Used to build up a workflow configuration data object. 

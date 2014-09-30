@@ -1,4 +1,6 @@
-package edu.tamu.tcat.analytics.datatrax;
+package edu.tamu.tcat.analytics.datatrax.config;
+
+import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
 
 /**
  * Indicates that a {@link TransformerFactory} has not been properly configured. 

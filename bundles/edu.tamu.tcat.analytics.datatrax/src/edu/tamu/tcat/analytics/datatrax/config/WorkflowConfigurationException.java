@@ -1,4 +1,4 @@
-package edu.tamu.tcat.analytics.datatrax;
+package edu.tamu.tcat.analytics.datatrax.config;
 
 public class WorkflowConfigurationException extends Exception
 {

@@ -2,6 +2,8 @@ package edu.tamu.tcat.analytics.datatrax;
 
 import java.util.function.Consumer;
 
+import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
+
 /**
  * Provides a structure for registering configurable algorithms ({@link Transformer}s) that 
  * transform input data instances of a particular type into output data.   

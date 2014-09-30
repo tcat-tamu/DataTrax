@@ -5,15 +5,15 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
-import edu.tamu.tcat.analytics.datatrax.FactoryConfiguration;
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
-import edu.tamu.tcat.analytics.datatrax.WorkflowConfiguration;
-import edu.tamu.tcat.analytics.datatrax.WorkflowConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.WorkflowFactory;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtTransformerFactoryDefinition;
+import edu.tamu.tcat.analytics.datatrax.config.FactoryConfiguration;
+import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
+import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
 
 /**
  * An implementation 

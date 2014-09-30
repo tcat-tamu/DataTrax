@@ -6,9 +6,9 @@ import org.eclipse.core.runtime.IContributor;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
-import edu.tamu.tcat.analytics.datatrax.FactoryConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
 
 /**
  * Wraps a transformer factory's plugin metadata declaration to provide an API for querying and 
