@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.tests.internal.Activator;
 import edu.tamu.tcat.osgi.services.util.ServiceHelper;
@@ -27,7 +27,7 @@ public class ExtFactoryRegistryTests
       try (ServiceHelper helper = new ServiceHelper(Activator.getDefault().getContext()))
       {
          TransformerFactoryRegistry registry = helper.waitForService(TransformerFactoryRegistry.class, 10_000);
-         TransformerFactory factory = registry.getFactory("edu.tamu.tcat.analytics.datatrax.tests.helloworld");
+         TransformerFactoryRegistration factory = registry.getFactory("edu.tamu.tcat.analytics.datatrax.tests.helloworld");
          assertNotNull("Failed to retrieve hello world factory.", factory);
          
          assertTrue("Cannot accept String.class", factory.canAccept(String.class));

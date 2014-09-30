@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.Platform;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
 
 /**
@@ -83,9 +83,9 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
    }
    
    @Override
-   public Collection<TransformerFactory> getFactories()
+   public Collection<TransformerFactoryRegistration> getFactories()
    {
-      return new ArrayList<TransformerFactory>(factoryDefinitions.values());
+      return new ArrayList<TransformerFactoryRegistration>(factoryDefinitions.values());
    }
    
    @Override
@@ -108,9 +108,9 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
    }
 
    @Override
-   public <X> Collection<TransformerFactory> getCompatibleFactories(Class<X> sourceType)
+   public <X> Collection<TransformerFactoryRegistration> getCompatibleFactories(Class<X> sourceType)
    {
-      Collection<TransformerFactory> matches = new HashSet<>();
+      Collection<TransformerFactoryRegistration> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
       {
          if (defn.canAccept(sourceType))
@@ -121,9 +121,9 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
    }
 
    @Override
-   public <X> Collection<TransformerFactory> getProducingFactories(Class<X> outputType)
+   public <X> Collection<TransformerFactoryRegistration> getProducingFactories(Class<X> outputType)
    {
-      Collection<TransformerFactory> matches = new HashSet<>();
+      Collection<TransformerFactoryRegistration> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
       {
          if (defn.canProduce(outputType))

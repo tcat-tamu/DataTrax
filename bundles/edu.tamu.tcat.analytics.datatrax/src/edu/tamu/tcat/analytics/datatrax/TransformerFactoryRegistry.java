@@ -11,7 +11,7 @@ import java.util.Collection;
 public interface TransformerFactoryRegistry
 {
 
-   Collection<TransformerFactory> getFactories();     // TODO return string ids
+   Collection<TransformerFactoryRegistration> getFactories();     // TODO return string ids
 
    /**
     * Indicates whether a factory is registered for the provided id. Note that the id under whci 
@@ -30,7 +30,7 @@ public interface TransformerFactoryRegistry
     *       prior to calling this method.
     * 
     */
-   TransformerFactory getFactory(String id) throws FactoryUnavailableException;     // should return what is currently the Transformer
+   TransformerFactoryRegistration getFactory(String id) throws FactoryUnavailableException;     // should return what is currently the Transformer
    
    // TODO getRegistration(String id) -- should return what is currently the TransformerFactory
    /**
@@ -41,7 +41,7 @@ public interface TransformerFactoryRegistry
     * @return All currently registered factories that will process data of the supplied 
     *       type. Will not be null, may be empty.
     */
-   <X> Collection<TransformerFactory> getCompatibleFactories(Class<X> sourceType);  // TODO return string ids
+   <X> Collection<TransformerFactoryRegistration> getCompatibleFactories(Class<X> sourceType);  // TODO return string ids
    
    /**
     * Retrieves all factories that produce output data of the supplied type. Note that the 
@@ -52,7 +52,7 @@ public interface TransformerFactoryRegistry
     * @return All currently registered factories that can convert data into the supplied type. 
     *       Will not be null, may be empty.
     */
-   <X> Collection<TransformerFactory> getProducingFactories(Class<X> outputType);   // TODO return string ids
+   <X> Collection<TransformerFactoryRegistration> getProducingFactories(Class<X> outputType);   // TODO return string ids
 
    
    

@@ -1,9 +1,9 @@
 package edu.tamu.tcat.analytics.datatrax.config;
 
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
 
 /**
- * Indicates that a {@link TransformerFactory} has not been properly configured. 
+ * Indicates that a {@link TransformerFactoryRegistration} has not been properly configured. 
  */
 public class FactoryConfigurationException extends RuntimeException
 {

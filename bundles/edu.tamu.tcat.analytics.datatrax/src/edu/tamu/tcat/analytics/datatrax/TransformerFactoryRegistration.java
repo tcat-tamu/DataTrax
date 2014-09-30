@@ -9,7 +9,7 @@ import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
  * transform input data instances of a particular type into output data.   
  *
  */
-public interface TransformerFactory
+public interface TransformerFactoryRegistration
 {
    // TODO Rename to TransformerRegistration - provides meta-informatation about a TransformerFactory (currently named Transformer)
    // NOTE Instantiation of a transformer is an implementation detail (see deprecated method below). 
@@ -47,7 +47,7 @@ public interface TransformerFactory
     * @return {@code true} if the supplied type is the same as or a sub-type of the declared 
     *    source type.
     * @throws FactoryConfigurationException If there are errors in the configuration of this 
-    *    {@link TransformerFactory} that prevent the evaluation of this method. Note that this
+    *    {@link TransformerFactoryRegistration} that prevent the evaluation of this method. Note that this
     *    could be caused by a invalid registration metadata or by errors in the application's 
     *    (for example, if a class provided by an OSGi bundle is no longer available to the OSGi 
     *    class loader).  
@@ -62,7 +62,7 @@ public interface TransformerFactory
     * @return {@code true} if the supplied type is the same as or a super-type of the declared 
     *    output type.
     * @throws FactoryConfigurationException If there are errors in the configuration of this 
-    *    {@link TransformerFactory} that prevent the evaluation of this method. Note that this
+    *    {@link TransformerFactoryRegistration} that prevent the evaluation of this method. Note that this
     *    could be caused by a invalid registration metadata or by errors in the application's 
     *    (for example, if a class provided by an OSGi bundle is no longer available to the OSGi 
     *    class loader).  
@@ -81,7 +81,7 @@ public interface TransformerFactory
     * 
     * @return A instance of the {@link Transformer} defined by this factory.
     * @throws FactoryConfigurationException If there are errors in the configuration of this
-    *    {@link TransformerFactory} that prevent the instantiation of the {@link Transformer}.  
+    *    {@link TransformerFactoryRegistration} that prevent the instantiation of the {@link Transformer}.  
     *    Note that this could be caused by a invalid registration metadata or by errors in the 
     *    application's (for example, if a class provided by an OSGi bundle is no longer 
     *    available to the OSGi class loader).  

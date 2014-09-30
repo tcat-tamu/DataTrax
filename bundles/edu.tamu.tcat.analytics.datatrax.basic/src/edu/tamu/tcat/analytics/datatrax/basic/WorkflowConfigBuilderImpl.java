@@ -6,7 +6,7 @@ import java.util.Objects;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtTransformerFactoryDefinition;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfiguration;
@@ -69,11 +69,11 @@ public class WorkflowConfigBuilderImpl
     * @throws WorkflowConfigurationException If the supplied candidate cannot be appended to 
     *    the current workflow.
     */
-   private void checkTypeCompatibility(TransformerFactory candidate) throws WorkflowConfigurationException
+   private void checkTypeCompatibility(TransformerFactoryRegistration candidate) throws WorkflowConfigurationException
    {
       if (size() != 0)
       {
-         TransformerFactory tail = getTail();
+         TransformerFactoryRegistration tail = getTail();
          if (!candidate.canAccept(tail.getDeclaredOutputType()))
             throw new WorkflowConfigurationException("Cannot append transformer factory: " 
                   + candidate.getTitle() + "[" + candidate.getId() + "]. Declared input type [" + candidate.getDeclaredSourceType() + "] "
@@ -95,7 +95,7 @@ public class WorkflowConfigBuilderImpl
     * @return A {@link Collection} of all registered factories that can be appended to the 
     *       current workflow. 
     */
-   public Collection<TransformerFactory> listValidFactories()
+   public Collection<TransformerFactoryRegistration> listValidFactories()
    {
       return registry.getCompatibleFactories(getTail().getDeclaredOutputType());
    }
@@ -133,24 +133,24 @@ public class WorkflowConfigBuilderImpl
 
    /**
     * 
-    * @return The first {@link TransformerFactory} in the current workflow configuration. Will
+    * @return The first {@link TransformerFactoryRegistration} in the current workflow configuration. Will
     *    not be {@code null}. 
     * @throws IllegalStateException If no factories have been added to the current configuration
     *    or if the defined factory cannot be retrieved from the registry. 
     */
-   private TransformerFactory getHead()
+   private TransformerFactoryRegistration getHead()
    {
       return getFactory(0);
    }
    
    /**
     * 
-    * @return The final {@link TransformerFactory} in the current workflow configuration. Will
+    * @return The final {@link TransformerFactoryRegistration} in the current workflow configuration. Will
     *    not be {@code null}. 
     * @throws IllegalStateException If no factories have been added to the current configuration 
     *    or if the defined factory cannot be retrieved from the registry. 
     */
-   private TransformerFactory getTail()
+   private TransformerFactoryRegistration getTail()
    {
       return getFactory(size() - 1);
    }
