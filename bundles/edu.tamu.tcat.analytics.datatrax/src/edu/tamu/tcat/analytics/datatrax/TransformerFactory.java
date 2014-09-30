@@ -16,17 +16,17 @@ import java.util.function.Supplier;
  * @param <IN>
  * @param <OUT>
  */
-public interface TransformerFactory<IN, OUT>
+public interface TransformerFactory
 {
    /**
     * @return A type token for the input data type. 
     */
-   Class<IN> getSourceType();
+   Class<?> getSourceType();
    
    /**
     * @return A type token for the output data type. 
     */
-   Class<OUT> getOutputType();
+   Class<?> getOutputType();
    
    /**
     * 
@@ -59,7 +59,7 @@ public interface TransformerFactory<IN, OUT>
     * @param sink
     * @return
     */
-   Runnable create(Supplier<? extends IN> source, Consumer<? super OUT> sink);
+   Runnable create(DataSource<?> source, DataSink<?> sink);
    
    // TODO need to provide sub-interface to supplier/consumer that will supply 
    //      pass-through context data for the purpose (for example) of annotation the image 

@@ -48,7 +48,7 @@ public class WorkflowConfigBuilderImpl
       // TODO test supplied configuration.
       try 
       {
-         TransformerFactory<Object, Object> transformer = candidate.instantiate();
+         TransformerFactory transformer = candidate.instantiate();
          transformer.configure(config.configData);
       } 
       catch (Exception ex)

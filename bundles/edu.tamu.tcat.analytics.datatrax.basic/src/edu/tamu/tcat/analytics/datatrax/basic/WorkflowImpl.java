@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import edu.tamu.tcat.analytics.datatrax.DataSink;
+import edu.tamu.tcat.analytics.datatrax.DataSource;
 import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
 
@@ -14,9 +16,9 @@ public class WorkflowImpl<IN, OUT> implements DataTransformWorkflow<IN, OUT>
    // TODO monitor performance of different transformers
    // TODO provide integrated 
    
-   private final List<TransformerFactory<?, ?>> transformers;
+   private final List<TransformerFactory> transformers;
    
-   public WorkflowImpl(List<TransformerFactory<?, ?>> transformers)
+   public WorkflowImpl(List<TransformerFactory> transformers)
    {
       this.transformers = transformers;;
    }
@@ -24,14 +26,14 @@ public class WorkflowImpl<IN, OUT> implements DataTransformWorkflow<IN, OUT>
    @Override
    public Class<?> getSourceType()
    {
-      TransformerFactory<?, ?> transformer = transformers.get(0);
+      TransformerFactory transformer = transformers.get(0);
       return transformer.getSourceType();
    }
 
    @Override
    public Class<?> getOutputType()
    {
-      TransformerFactory<?, ?> transformer = transformers.get(transformers.size() - 1);
+      TransformerFactory transformer = transformers.get(transformers.size() - 1);
       return transformer.getOutputType();
    }
 
@@ -52,10 +54,28 @@ public class WorkflowImpl<IN, OUT> implements DataTransformWorkflow<IN, OUT>
    public void process(Supplier<? extends IN> input, Consumer<? super OUT> ears)
    {
       List<Runnable> chain = new ArrayList<Runnable>();
-      Supplier src = input;
+//      Supplier src = input;
+      DataSource<?> src = new DataSource()
+      {
+         @Override
+         public Object get()
+         {
+            return input.get();
+         }
+      };
+      
+      DataSink sink = new DataSink()
+      {
+         @Override
+         public void accept(Object t)
+         {
+            ((Consumer)ears).accept(t);
+         }
+      };
+      
       for (int i = 0; i < transformers.size(); i++)
       {
-         TransformerFactory<?, ?> transformer = transformers.get(i);
+         TransformerFactory transformer = transformers.get(i);
          if (i < transformers.size() - 1) 
          {
             InOutShim shim = new InOutShim<>();
@@ -64,7 +84,7 @@ public class WorkflowImpl<IN, OUT> implements DataTransformWorkflow<IN, OUT>
          }
          else 
          {
-            chain.add(transformer.create(src, (Consumer)ears));
+            chain.add(transformer.create(src, sink));
          }
       }
       

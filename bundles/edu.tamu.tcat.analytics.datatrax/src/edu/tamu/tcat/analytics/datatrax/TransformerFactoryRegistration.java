@@ -87,6 +87,6 @@ public interface TransformerFactoryRegistration
     *    available to the OSGi class loader).  
     */
    @Deprecated
-   <IN, OUT> TransformerFactory<IN, OUT> instantiate() throws FactoryConfigurationException;
+   TransformerFactory instantiate() throws FactoryConfigurationException;
 
 }

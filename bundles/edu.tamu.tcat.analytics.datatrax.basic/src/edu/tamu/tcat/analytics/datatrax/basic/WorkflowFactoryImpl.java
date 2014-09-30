@@ -44,11 +44,11 @@ public class WorkflowFactoryImpl implements WorkflowFactory
    {
       // TODO figure out how to create the initial data source provider
       
-      List<TransformerFactory<?, ?>> transformers = new ArrayList<>();
+      List<TransformerFactory> transformers = new ArrayList<>();
       Class<?> sourceType = config.sourceType;    // the Java type that will be the input source of the next transformer
       for (FactoryConfiguration cfg : config.factories)
       {
-         TransformerFactory<?, ?> transformer = loadTransformer(cfg, sourceType);
+         TransformerFactory transformer = loadTransformer(cfg, sourceType);
          transformers.add(transformer);
          sourceType = transformer.getOutputType();
       }
@@ -67,7 +67,7 @@ public class WorkflowFactoryImpl implements WorkflowFactory
     *    the specified transformer from being loaded.
     * 
     */
-   private TransformerFactory<?, ?> loadTransformer(FactoryConfiguration config, Class<?> expectInputType) throws WorkflowConfigurationException
+   private TransformerFactory loadTransformer(FactoryConfiguration config, Class<?> expectInputType) throws WorkflowConfigurationException
    {
       String factoryId = config.factoryId;
       if (!registry.isRegistered(factoryId))
@@ -82,7 +82,7 @@ public class WorkflowFactoryImpl implements WorkflowFactory
                   + "does not accept input of type [" + expectInputType + "]. "
                   + "Requires [" + factory.getDeclaredSourceType() + "]");
          
-         TransformerFactory<Object, Object> transformer = factory.instantiate();
+         TransformerFactory transformer = factory.instantiate();
          transformer.configure(config.configData);
          
          return transformer;

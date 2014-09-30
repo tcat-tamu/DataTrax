@@ -5,10 +5,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import edu.tamu.tcat.analytics.datatrax.DataSink;
+import edu.tamu.tcat.analytics.datatrax.DataSource;
 import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
 
-public class MockTransformer implements TransformerFactory<String, String>
+public class MockTransformer implements TransformerFactory
 {
 
    public MockTransformer()
@@ -40,19 +42,20 @@ public class MockTransformer implements TransformerFactory<String, String>
    }
 
    @Override
-   public Runnable create(final Supplier<? extends String> source, final Consumer<? super String> sink)
+   public Runnable create(final DataSource<?> source, final DataSink<?> sink)
    {
       return new Runnable()
       {
          
+         @SuppressWarnings({"unchecked", "rawtypes"})
          @Override
          public void run()
          {
-            String s = source.get();
+            String s = (String)source.get();
             if (s == null)
                throw new IllegalStateException("Invalid string. Null value.");
             
-            sink.accept("Hello " + s);
+            ((DataSink)sink).accept("Hello " + s);
             
          }
       };

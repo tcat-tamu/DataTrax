@@ -124,12 +124,11 @@ public class ExtTransformerFactoryDefinition implements TransformerFactoryRegist
       return type.isAssignableFrom(declaredOutputType);
    }
    
-   public <IN, OUT> TransformerFactory<IN, OUT> instantiate() throws FactoryConfigurationException
+   public TransformerFactory instantiate() throws FactoryConfigurationException
    {
       try
       {
-         @SuppressWarnings("unchecked") // type information must be known out of band.
-         TransformerFactory<IN, OUT> factory = (TransformerFactory<IN, OUT>)config.createExecutableExtension("class");
+         TransformerFactory factory = (TransformerFactory)config.createExecutableExtension("class");
          return factory;
       }
       catch (CoreException e)
