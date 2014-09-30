@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * @param <IN>
  * @param <OUT>
  */
-public interface Transformer<IN, OUT>
+public interface TransformerFactory<IN, OUT>
 {
    /**
     * @return A type token for the input data type. 

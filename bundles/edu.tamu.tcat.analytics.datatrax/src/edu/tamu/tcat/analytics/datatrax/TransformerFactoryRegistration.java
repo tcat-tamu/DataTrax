@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
 
 /**
- * Provides a structure for registering configurable algorithms ({@link Transformer}s) that 
+ * Provides a structure for registering configurable algorithms ({@link TransformerFactory}s) that 
  * transform input data instances of a particular type into output data.   
  *
  */
@@ -25,7 +25,7 @@ public interface TransformerFactoryRegistration
    String getTitle();
 
    /**
-    * @return The Java type of objects that can be used as input to the {@link Transformer} 
+    * @return The Java type of objects that can be used as input to the {@link TransformerFactory} 
     *    instances returned by this factory. Note that instances of the declared source type 
     *    and all sub-types must be accepted and correctly handled by the returned 
     *    {@code Transformer} instances.
@@ -34,7 +34,7 @@ public interface TransformerFactoryRegistration
    
    /**
     * @return The Java type of objects that will be generated as output from the 
-    *    {@link Transformer} instances returned by this factory. Note that the returned 
+    *    {@link TransformerFactory} instances returned by this factory. Note that the returned 
     *    {@code Transformer} instances will be required to supply output to a {@link Consumer} 
     *    that accepts instances of the declared output type or any super type. 
     */
@@ -70,23 +70,23 @@ public interface TransformerFactoryRegistration
    boolean canProduce(Class<?> type) throws FactoryConfigurationException;
    
    /**
-    * Creates an instance of the {@link Transformer} defined by this factory. Note that the 
+    * Creates an instance of the {@link TransformerFactory} defined by this factory. Note that the 
     * returned {@code Transformer} can be configured and used independently of any 
-    * {@link Transformer} returned by this factory.
+    * {@link TransformerFactory} returned by this factory.
     * <p>
     * Note that the type parameters {@code IN} and {@code OUT} must pass the 
     * {@link #canAccept(Class)} and {@link #canProduce(Class)} type check methods respectively 
-    * in order to maintain type safety the returned {@link Transformer}. Failure to ensure this
+    * in order to maintain type safety the returned {@link TransformerFactory}. Failure to ensure this
     * will almost certainly result in a {@link ClassCastException} upon use.  
     * 
-    * @return A instance of the {@link Transformer} defined by this factory.
+    * @return A instance of the {@link TransformerFactory} defined by this factory.
     * @throws FactoryConfigurationException If there are errors in the configuration of this
-    *    {@link TransformerFactoryRegistration} that prevent the instantiation of the {@link Transformer}.  
+    *    {@link TransformerFactoryRegistration} that prevent the instantiation of the {@link TransformerFactory}.  
     *    Note that this could be caused by a invalid registration metadata or by errors in the 
     *    application's (for example, if a class provided by an OSGi bundle is no longer 
     *    available to the OSGi class loader).  
     */
    @Deprecated
-   <IN, OUT> Transformer<IN, OUT> instantiate() throws FactoryConfigurationException;
+   <IN, OUT> TransformerFactory<IN, OUT> instantiate() throws FactoryConfigurationException;
 
 }

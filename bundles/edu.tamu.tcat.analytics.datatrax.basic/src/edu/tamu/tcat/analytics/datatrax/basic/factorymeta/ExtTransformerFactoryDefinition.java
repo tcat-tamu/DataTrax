@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.IContributor;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
-import edu.tamu.tcat.analytics.datatrax.Transformer;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
 
@@ -124,12 +124,12 @@ public class ExtTransformerFactoryDefinition implements TransformerFactoryRegist
       return type.isAssignableFrom(declaredOutputType);
    }
    
-   public <IN, OUT> Transformer<IN, OUT> instantiate() throws FactoryConfigurationException
+   public <IN, OUT> TransformerFactory<IN, OUT> instantiate() throws FactoryConfigurationException
    {
       try
       {
          @SuppressWarnings("unchecked") // type information must be known out of band.
-         Transformer<IN, OUT> factory = (Transformer<IN, OUT>)config.createExecutableExtension("class");
+         TransformerFactory<IN, OUT> factory = (TransformerFactory<IN, OUT>)config.createExecutableExtension("class");
          return factory;
       }
       catch (CoreException e)

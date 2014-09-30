@@ -4,7 +4,7 @@ import java.util.Collection;
 
 
 /**
- * A service that provides access to {@link Transformer} implementations that have been
+ * A service that provides access to {@link TransformerFactory} implementations that have been
  * registered with the framework.
  *
  */

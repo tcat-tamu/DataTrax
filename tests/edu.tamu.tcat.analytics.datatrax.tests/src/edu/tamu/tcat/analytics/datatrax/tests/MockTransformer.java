@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
-import edu.tamu.tcat.analytics.datatrax.Transformer;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
 
-public class MockTransformer implements Transformer<String, String>
+public class MockTransformer implements TransformerFactory<String, String>
 {
 
    public MockTransformer()

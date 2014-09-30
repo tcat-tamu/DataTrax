@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IRegistryEventListener;
 import org.eclipse.core.runtime.Platform;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
-import edu.tamu.tcat.analytics.datatrax.Transformer;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
 
@@ -38,7 +38,7 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
 
    /**
     * Initializes this {@link ExtPointTranformerFactoryProvider}. This must be called during 
-    * initial configuration in order to load {@link Transformer} plugins.
+    * initial configuration in order to load {@link TransformerFactory} plugins.
     */
    public void activate()
    {

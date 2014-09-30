@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
-import edu.tamu.tcat.analytics.datatrax.Transformer;
+import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtTransformerFactoryDefinition;
@@ -48,7 +48,7 @@ public class WorkflowConfigBuilderImpl
       // TODO test supplied configuration.
       try 
       {
-         Transformer<Object, Object> transformer = candidate.instantiate();
+         TransformerFactory<Object, Object> transformer = candidate.instantiate();
          transformer.configure(config.configData);
       } 
       catch (Exception ex)
