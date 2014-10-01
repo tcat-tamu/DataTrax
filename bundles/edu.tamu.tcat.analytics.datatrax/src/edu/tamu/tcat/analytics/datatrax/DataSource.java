@@ -2,6 +2,12 @@ package edu.tamu.tcat.analytics.datatrax;
 
 import java.util.function.Supplier;
 
+/**
+ * Supplies a data object for consumption by a data transformation algorithm. This is intended 
+ * to wrap a specific data instanse   
+ *
+ * @param <T> The type of data object supplied by this {@link DataSource}.
+ */
 public interface DataSource<T> extends Supplier<T>
 {
 

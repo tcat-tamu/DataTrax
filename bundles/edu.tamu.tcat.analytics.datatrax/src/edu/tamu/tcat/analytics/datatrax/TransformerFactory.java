@@ -10,9 +10,6 @@ import java.util.Map;
  * and/or transformation and produces output of type {@code OUT}. Implementations of 
  * {@code Transformer} are typically registered as extensions by their implementing 
  * bundle. 
- *
- * @param <IN>
- * @param <OUT>
  */
 public interface TransformerFactory
 {
