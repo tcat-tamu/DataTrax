@@ -83,7 +83,7 @@ public class WorkflowFactoryImpl implements WorkflowFactory
                   + "Requires [" + factory.getDeclaredSourceType() + "]");
          
          TransformerFactory transformer = factory.instantiate();
-         transformer.configure(config.configData);
+         transformer.configure(config.params);
          
          return transformer;
       }

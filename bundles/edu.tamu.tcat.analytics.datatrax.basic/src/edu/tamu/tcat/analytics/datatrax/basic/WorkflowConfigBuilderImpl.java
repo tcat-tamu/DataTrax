@@ -49,7 +49,7 @@ public class WorkflowConfigBuilderImpl
       try 
       {
          TransformerFactory transformer = candidate.instantiate();
-         transformer.configure(config.configData);
+         transformer.configure(config.params);
       } 
       catch (Exception ex)
       {

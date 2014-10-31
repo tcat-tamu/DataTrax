@@ -2,6 +2,7 @@ package edu.tamu.tcat.analytics.datatrax.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
@@ -17,5 +18,9 @@ public class FactoryConfiguration
 {
    public String factoryId;
    
-   public Map<String, Object> configData = new HashMap<>();
+   public Map<String, Object> params = new HashMap<>();
+   
+   public Set<DataInputPin> inputs;
+   
+   Class<?> outputType;
 }

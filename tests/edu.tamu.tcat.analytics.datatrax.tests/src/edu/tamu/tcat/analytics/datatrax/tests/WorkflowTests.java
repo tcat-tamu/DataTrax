@@ -68,7 +68,7 @@ public class WorkflowTests
       
       FactoryConfiguration cfg = new FactoryConfiguration();
       cfg.factoryId = id;
-      cfg.configData = params;
+      cfg.params = params;
       
       return cfg;
    }
