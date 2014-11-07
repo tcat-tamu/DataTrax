@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.IContributor;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
 
@@ -124,11 +124,11 @@ public class ExtTransformerFactoryDefinition implements TransformerFactoryRegist
       return type.isAssignableFrom(declaredOutputType);
    }
    
-   public TransformerFactory instantiate() throws FactoryConfigurationException
+   public Transformer instantiate() throws FactoryConfigurationException
    {
       try
       {
-         TransformerFactory factory = (TransformerFactory)config.createExecutableExtension("class");
+         Transformer factory = (Transformer)config.createExecutableExtension("class");
          return factory;
       }
       catch (CoreException e)

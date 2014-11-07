@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
+import edu.tamu.tcat.analytics.datatrax.TransformerRegistry;
 import edu.tamu.tcat.analytics.datatrax.tests.internal.Activator;
 import edu.tamu.tcat.osgi.services.util.ServiceHelper;
 
@@ -26,7 +26,7 @@ public class ExtFactoryRegistryTests
       // TODO should test without appeal to OSGi
       try (ServiceHelper helper = new ServiceHelper(Activator.getDefault().getContext()))
       {
-         TransformerFactoryRegistry registry = helper.waitForService(TransformerFactoryRegistry.class, 10_000);
+         TransformerRegistry registry = helper.waitForService(TransformerRegistry.class, 10_000);
          TransformerFactoryRegistration factory = registry.getFactory("edu.tamu.tcat.analytics.datatrax.tests.helloworld");
          assertNotNull("Failed to retrieve hello world factory.", factory);
          

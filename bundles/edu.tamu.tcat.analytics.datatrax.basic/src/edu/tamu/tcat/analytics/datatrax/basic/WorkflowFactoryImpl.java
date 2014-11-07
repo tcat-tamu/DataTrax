@@ -6,9 +6,9 @@ import java.util.List;
 
 import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
-import edu.tamu.tcat.analytics.datatrax.WorkflowFactory;
+import edu.tamu.tcat.analytics.datatrax.WorkflowController;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtTransformerFactoryDefinition;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfiguration;
@@ -23,7 +23,7 @@ import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
  * while constructing a {@link DataTransformWorkflow}. 
  *
  */
-public class WorkflowFactoryImpl implements WorkflowFactory
+public class WorkflowFactoryImpl implements WorkflowController
 {
 
    private ExtPointTranformerFactoryRegistry registry;
@@ -44,11 +44,11 @@ public class WorkflowFactoryImpl implements WorkflowFactory
    {
       // TODO figure out how to create the initial data source provider
       
-      List<TransformerFactory> transformers = new ArrayList<>();
+      List<Transformer> transformers = new ArrayList<>();
       Class<?> sourceType = config.sourceType;    // the Java type that will be the input source of the next transformer
       for (FactoryConfiguration cfg : config.factories)
       {
-         TransformerFactory transformer = loadTransformer(cfg, sourceType);
+         Transformer transformer = loadTransformer(cfg, sourceType);
          transformers.add(transformer);
          sourceType = transformer.getOutputType();
       }
@@ -67,7 +67,7 @@ public class WorkflowFactoryImpl implements WorkflowFactory
     *    the specified transformer from being loaded.
     * 
     */
-   private TransformerFactory loadTransformer(FactoryConfiguration config, Class<?> expectInputType) throws WorkflowConfigurationException
+   private Transformer loadTransformer(FactoryConfiguration config, Class<?> expectInputType) throws WorkflowConfigurationException
    {
       String factoryId = config.factoryId;
       if (!registry.isRegistered(factoryId))
@@ -82,7 +82,7 @@ public class WorkflowFactoryImpl implements WorkflowFactory
                   + "does not accept input of type [" + expectInputType + "]. "
                   + "Requires [" + factory.getDeclaredSourceType() + "]");
          
-         TransformerFactory transformer = factory.instantiate();
+         Transformer transformer = factory.instantiate();
          transformer.configure(config.params);
          
          return transformer;

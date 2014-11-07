@@ -6,9 +6,9 @@ import java.util.Map;
 import edu.tamu.tcat.analytics.datatrax.DataSink;
 import edu.tamu.tcat.analytics.datatrax.DataSource;
 import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 
-public class MockTransformer implements TransformerFactory
+public class MockTransformer implements Transformer
 {
 
    public MockTransformer()

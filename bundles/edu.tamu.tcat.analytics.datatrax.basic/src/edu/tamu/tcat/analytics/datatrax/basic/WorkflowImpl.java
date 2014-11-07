@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import edu.tamu.tcat.analytics.datatrax.DataSink;
 import edu.tamu.tcat.analytics.datatrax.DataSource;
 import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 
 public class WorkflowImpl<IN, OUT> implements DataTransformWorkflow<IN, OUT>
 {
@@ -16,9 +16,9 @@ public class WorkflowImpl<IN, OUT> implements DataTransformWorkflow<IN, OUT>
    // TODO monitor performance of different transformers
    // TODO provide integrated 
    
-   private final List<TransformerFactory> transformers;
+   private final List<Transformer> transformers;
    
-   public WorkflowImpl(List<TransformerFactory> transformers)
+   public WorkflowImpl(List<Transformer> transformers)
    {
       this.transformers = transformers;;
    }
@@ -26,14 +26,14 @@ public class WorkflowImpl<IN, OUT> implements DataTransformWorkflow<IN, OUT>
    @Override
    public Class<?> getSourceType()
    {
-      TransformerFactory transformer = transformers.get(0);
+      Transformer transformer = transformers.get(0);
       return transformer.getSourceType();
    }
 
    @Override
    public Class<?> getOutputType()
    {
-      TransformerFactory transformer = transformers.get(transformers.size() - 1);
+      Transformer transformer = transformers.get(transformers.size() - 1);
       return transformer.getOutputType();
    }
 
@@ -75,7 +75,7 @@ public class WorkflowImpl<IN, OUT> implements DataTransformWorkflow<IN, OUT>
       
       for (int i = 0; i < transformers.size(); i++)
       {
-         TransformerFactory transformer = transformers.get(i);
+         Transformer transformer = transformers.get(i);
          if (i < transformers.size() - 1) 
          {
             InOutShim shim = new InOutShim<>();
