@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 
 /**
  * A data vehicle for representing configuration information about a single 
- * {@link TransformerFactory} within a workflow. A {@link DataTransformWorkflow} is defined, in part, 
+ * {@link Transformer} within a workflow. A {@link DataTransformWorkflow} is defined, in part, 
  * by a sequence of {@code FactoryConfiguration}s that describe how to convert individual 
  * input data instances into output instances.
  *

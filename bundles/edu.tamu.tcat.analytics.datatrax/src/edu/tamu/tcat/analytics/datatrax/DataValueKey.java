@@ -9,7 +9,7 @@ package edu.tamu.tcat.analytics.datatrax;
 public interface DataValueKey
 {
    /**
-    * @return The unique identifier for the {@link TransformerFactory} instance that is responsible for 
+    * @return The unique identifier for the {@link Transformer} instance that is responsible for 
     *       creating a data value. Will not be {@code null}. Must be unique within the context
     *       of a configured workflow.
     */

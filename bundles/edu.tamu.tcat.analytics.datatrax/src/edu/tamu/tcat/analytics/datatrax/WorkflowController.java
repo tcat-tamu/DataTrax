@@ -3,7 +3,7 @@ package edu.tamu.tcat.analytics.datatrax;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 
 /**
- * Responsible for managing the flow of data through a network of {@link TransformerFactory}s 
+ * Responsible for managing the flow of data through a network of {@link Transformer}s 
  * and supplying the declared outputs of the workflow to a {@link ResultsCollector}. The 
  * {@code WorkflowController} is the primary unit for DataTrax clients to interact with in 
  * order to process a data set.

@@ -1,9 +1,9 @@
 package edu.tamu.tcat.analytics.datatrax.config;
 
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 
 /**
- * Defines a data input source for a {@link TransformerFactory}. {@code TransformerFactory}s 
+ * Defines a data input source for a {@link Transformer}. {@code TransformerFactory}s 
  * operate on one or more input data objects. The {@code DataInputPin} provides a unique label
  * for a data input object, a textual description of the purpose or intended use of the 
  * supplied data for display, and the Java type (or supertype) of the expected data. 

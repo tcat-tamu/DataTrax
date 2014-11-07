@@ -20,7 +20,7 @@ import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
  * {@code Transformer} are typically registered as extensions by their implementing 
  * bundle. 
  */
-public interface TransformerFactory
+public interface Transformer
 {
    /**
     * @return A type token for the input data type. 
