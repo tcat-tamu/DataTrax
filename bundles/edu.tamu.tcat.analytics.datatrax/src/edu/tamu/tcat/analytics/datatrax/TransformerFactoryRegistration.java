@@ -15,7 +15,7 @@ public interface TransformerFactoryRegistration
    // NOTE Instantiation of a transformer is an implementation detail (see deprecated method below). 
    /**
     * @return The unique identifier used to register this {@code TransformerFactory} with a 
-    *       {@link TransformerFactoryRegistry}. Will not be <code>null</code>.  
+    *       {@link TransformerRegistry}. Will not be <code>null</code>.  
     */
    String getId();
 

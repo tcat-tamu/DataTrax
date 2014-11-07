@@ -2,8 +2,6 @@ package edu.tamu.tcat.analytics.datatrax.config;
 
 import java.util.List;
 
-import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
-
 /**
  * Used to build up a workflow configuration data object. 
  * 
@@ -17,6 +15,6 @@ public interface WorkflowConfigurationBuilder
    
    void append(List<FactoryConfiguration> configs) throws WorkflowConfigurationException;
    
-   <IN, OUT> DataTransformWorkflow<IN, OUT> build();
+   WorkflowConfiguration build();
    
 }
