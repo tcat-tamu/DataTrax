@@ -1,7 +1,9 @@
 package edu.tamu.tcat.analytics.datatrax;
 
+import java.util.Set;
 import java.util.function.Consumer;
 
+import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
 
 /**
@@ -9,9 +11,8 @@ import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
  * transform input data instances of a particular type into output data.   
  *
  */
-public interface TransformerFactoryRegistration
+public interface TransformerRegistration
 {
-   // TODO Rename to TransformerRegistration - provides meta-informatation about a TransformerFactory (currently named Transformer)
    // NOTE Instantiation of a transformer is an implementation detail (see deprecated method below). 
    /**
     * @return The unique identifier used to register this {@code TransformerFactory} with a 
@@ -20,23 +21,23 @@ public interface TransformerFactoryRegistration
    String getId();
 
    /**
-    * @return The title of this {@code TransformerFactory} for display purposes.
+    * @return The title of the registered {@code Transformer} for display purposes.
     */
    String getTitle();
-
-   /**
-    * @return The Java type of objects that can be used as input to the {@link Transformer} 
-    *    instances returned by this factory. Note that instances of the declared source type 
-    *    and all sub-types must be accepted and correctly handled by the returned 
-    *    {@code Transformer} instances.
-    */
-   Class<?> getDeclaredSourceType();
    
    /**
-    * @return The Java type of objects that will be generated as output from the 
-    *    {@link Transformer} instances returned by this factory. Note that the returned 
-    *    {@code Transformer} instances will be required to supply output to a {@link Consumer} 
-    *    that accepts instances of the declared output type or any super type. 
+    * @return A description of the registered {@link Transformer} for display purposes.
+    */
+   String getDescription();
+
+   /**
+    * @return The input data objects that this transformer operates on. 
+    */
+   Set<DataInputPin> getDeclaredInputs();
+   
+   /**
+    * @return The Java type of objects that will be generated as output by the registered 
+    *    {@link Transformer}. 
     */
    Class<?> getDeclaredOutputType();
    
@@ -47,11 +48,12 @@ public interface TransformerFactoryRegistration
     * @return {@code true} if the supplied type is the same as or a sub-type of the declared 
     *    source type.
     * @throws FactoryConfigurationException If there are errors in the configuration of this 
-    *    {@link TransformerFactoryRegistration} that prevent the evaluation of this method. Note that this
+    *    {@link TransformerRegistration} that prevent the evaluation of this method. Note that this
     *    could be caused by a invalid registration metadata or by errors in the application's 
     *    (for example, if a class provided by an OSGi bundle is no longer available to the OSGi 
     *    class loader).  
     */
+   @Deprecated // seems like an impl detail? 
    boolean canAccept(Class<?> type) throws FactoryConfigurationException;
 
    /**
@@ -62,11 +64,12 @@ public interface TransformerFactoryRegistration
     * @return {@code true} if the supplied type is the same as or a super-type of the declared 
     *    output type.
     * @throws FactoryConfigurationException If there are errors in the configuration of this 
-    *    {@link TransformerFactoryRegistration} that prevent the evaluation of this method. Note that this
+    *    {@link TransformerRegistration} that prevent the evaluation of this method. Note that this
     *    could be caused by a invalid registration metadata or by errors in the application's 
     *    (for example, if a class provided by an OSGi bundle is no longer available to the OSGi 
     *    class loader).  
     */
+   @Deprecated // seems like an impl detail? 
    boolean canProduce(Class<?> type) throws FactoryConfigurationException;
    
    /**
@@ -81,12 +84,12 @@ public interface TransformerFactoryRegistration
     * 
     * @return A instance of the {@link Transformer} defined by this factory.
     * @throws FactoryConfigurationException If there are errors in the configuration of this
-    *    {@link TransformerFactoryRegistration} that prevent the instantiation of the {@link Transformer}.  
+    *    {@link TransformerRegistration} that prevent the instantiation of the {@link Transformer}.  
     *    Note that this could be caused by a invalid registration metadata or by errors in the 
     *    application's (for example, if a class provided by an OSGi bundle is no longer 
     *    available to the OSGi class loader).  
     */
-   @Deprecated
+   @Deprecated // The registration should simply define the metadata. Should not instantiate the Transformer.
    Transformer instantiate() throws FactoryConfigurationException;
 
 }

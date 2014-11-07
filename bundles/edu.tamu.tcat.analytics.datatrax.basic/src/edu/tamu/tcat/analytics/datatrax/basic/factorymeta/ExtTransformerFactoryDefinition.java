@@ -7,7 +7,7 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
 import edu.tamu.tcat.analytics.datatrax.Transformer;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
+import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
 
 /**
@@ -15,7 +15,7 @@ import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
  * and interacting with that factory. 
  *
  */
-public class ExtTransformerFactoryDefinition implements TransformerFactoryRegistration
+public class ExtTransformerFactoryDefinition implements TransformerRegistration
 {
    // TODO handle un-registration of the defining plugin 
    private final String id;

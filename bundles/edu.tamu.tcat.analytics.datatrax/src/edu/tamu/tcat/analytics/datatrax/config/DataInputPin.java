@@ -12,15 +12,28 @@ import edu.tamu.tcat.analytics.datatrax.Transformer;
  */
 public class DataInputPin
 {
+   /**
+    * A label that identifies this input pin within the scope of the associated {@link Transformer}. 
+    * For convenience this is typically a semantically meaningful value. 
+    */
    public String label;
    
+   /**
+    * A description of how the associated {@link Transformer} will use this input value for 
+    * use in workflow authoring interfaces.
+    */
    public String description;
    
+   /**
+    * The Java type of objects that are acceptable data sources for the associated input pin.
+    */
    public Class<?> type;
    
    /**
-    * Indicates that this input value must be supplied. For optional data inputs, if a workflow
-    * is configured with a transformer that will supply the required input 
+    * Indicates whether this input value must be supplied. A value of {@code false} means that 
+    * a workflow will be considered valid even if an input for this pin is not supplied. If an 
+    * input value is stitched to this pin, a value for that source data must be supplied during 
+    * execution before the associated {@link Transformer} will be invoked. 
     */
    public boolean required = true;
 }

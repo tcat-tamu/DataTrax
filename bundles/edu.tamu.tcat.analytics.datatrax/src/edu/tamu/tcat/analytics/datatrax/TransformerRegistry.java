@@ -43,7 +43,7 @@ public interface TransformerRegistry
     *       {@code id}.   
     * 
     */
-   TransformerFactoryRegistration getFactory(String id) throws FactoryUnavailableException;    
+   TransformerRegistration getFactory(String id) throws FactoryUnavailableException;    
    
    /**
     * Retrieves all transformers that can accept input data sources of the supplied type. Note 

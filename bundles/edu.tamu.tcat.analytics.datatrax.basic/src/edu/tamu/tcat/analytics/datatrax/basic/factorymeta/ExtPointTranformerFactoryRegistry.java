@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.Platform;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
+import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistry;
 
 /**
@@ -83,9 +83,9 @@ public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
    }
    
    @Override
-   public Collection<TransformerFactoryRegistration> getFactories()
+   public Collection<TransformerRegistration> getFactories()
    {
-      return new ArrayList<TransformerFactoryRegistration>(factoryDefinitions.values());
+      return new ArrayList<TransformerRegistration>(factoryDefinitions.values());
    }
    
    @Override
@@ -108,9 +108,9 @@ public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
    }
 
    @Override
-   public <X> Collection<TransformerFactoryRegistration> getCompatibleFactories(Class<X> sourceType)
+   public <X> Collection<TransformerRegistration> getCompatibleFactories(Class<X> sourceType)
    {
-      Collection<TransformerFactoryRegistration> matches = new HashSet<>();
+      Collection<TransformerRegistration> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
       {
          if (defn.canAccept(sourceType))
@@ -121,9 +121,9 @@ public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
    }
 
    @Override
-   public <X> Collection<TransformerFactoryRegistration> getProducingFactories(Class<X> outputType)
+   public <X> Collection<TransformerRegistration> getProducingFactories(Class<X> outputType)
    {
-      Collection<TransformerFactoryRegistration> matches = new HashSet<>();
+      Collection<TransformerRegistration> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
       {
          if (defn.canProduce(outputType))

@@ -2,6 +2,9 @@ package edu.tamu.tcat.analytics.datatrax;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+
+import javax.xml.transform.TransformerFactory;
 
 import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
@@ -28,11 +31,13 @@ public interface Transformer
    @Deprecated
    Class<?> getSourceType();
    
+   @Deprecated // a property of the registration, not the transformer
    Set<DataInputPin> getInputPins();
    
    /**
     * @return A type token for the output data type. 
     */
+   @Deprecated // a property of the registration, not the transformer
    Class<?> getOutputType();
    
    /**
@@ -44,34 +49,33 @@ public interface Transformer
    void configure(Map<String, Object> data) throws TransformerConfigurationException;
    
    /**
-    * 
-    * @return
+    * @return An object representing the currently configured state of this {@link Transformer}.
+    *    The objects stored in the returned may should be of types that are easily serializable.
+    *    Typically this means Object equivalents to Java primitives or POJOS composed of public
+    *    fields that are Java primitives.
     */
    Map<String, Object> getConfiguration();
    
-//   OUT transform(IN source) throws Exception;
-   
    /**
-    * NOTES:
-    * - Returns a data processor (a Runnable) that can be used to process a single input data instance.
-    * - This processor will be used only once.
-    * - Must not have side effects (must not modify the source object if that object is mutable)
-    *     --  May use the API provided by the DataSink and DataSource to access a provided cache
-    *         or update metadata about the generated object
-    * - We require the creation of a Runnable (as opposed to using a method like 
-    *   {@code OUT transform(IN source)} in order to help clarify that the data processing must
-    *   not modify the state of the transformer. That is, once configured, the transformer 
-    *   must be thread-safe. 
-    *  
-    * @param source
-    * @param sink
-    * @return
+    * Returns a data processor (a {@link Callable}) that is used to process input data from
+    * previously executed {@link Transformer}s or other data sources (e.g., source data 
+    * supplied to the {@link WorkflowController}). The supplied {@link TransformerContext} 
+    * allows the implementation to retrieve data object that correspond to the labels defined
+    * by the registered input pins. These data objects will be available for retrieval when
+    * the {@link #create(TransformerContext)} method is invoked and may be removed from the 
+    * context once this method returns. 
+    * 
+    * <p>
+    * The returned processor will be used only once and scheduled for execution by the 
+    * {@link WorkflowController}. Consequently, it must not have side effects or dependencies
+    * on data external data sources that may be changed. Specifically, it must not change any 
+    * internal state associated with the {@link Transformer} or modify the supplied input data 
+    * if those objects are mutable. It may depend on the internal state of the {@link Transformer},
+    * (for example, on configuration parameters) or other external data sources only if all
+    * required invariants are stable over time.  
+    * 
+    * @param ctx A data context object for use in retrieving any supplied source data.
+    * @return A data processor that will be scheduled to run by the {@link WorkflowController}.
     */
-   Runnable create(DataSource<?> source, DataSink<?> sink);
-   
-   // TODO need to provide sub-interface to supplier/consumer that will supply 
-   //      pass-through context data for the purpose (for example) of annotation the image 
-   //      source or writing intermediate results
-
-
+   Callable<?> create(TransformerContext ctx);
 }
