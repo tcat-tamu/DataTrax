@@ -53,7 +53,6 @@ public interface TransformerRegistration
     *    (for example, if a class provided by an OSGi bundle is no longer available to the OSGi 
     *    class loader).  
     */
-   @Deprecated // seems like an impl detail? 
    boolean canAccept(Class<?> type) throws FactoryConfigurationException;
 
    /**
@@ -69,7 +68,6 @@ public interface TransformerRegistration
     *    (for example, if a class provided by an OSGi bundle is no longer available to the OSGi 
     *    class loader).  
     */
-   @Deprecated // seems like an impl detail? 
    boolean canProduce(Class<?> type) throws FactoryConfigurationException;
    
    /**
@@ -89,7 +87,6 @@ public interface TransformerRegistration
     *    application's (for example, if a class provided by an OSGi bundle is no longer 
     *    available to the OSGi class loader).  
     */
-   @Deprecated // The registration should simply define the metadata. Should not instantiate the Transformer.
    Transformer instantiate() throws FactoryConfigurationException;
 
 }
