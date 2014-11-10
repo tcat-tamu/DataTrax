@@ -50,7 +50,7 @@
    <element name="transformer_factory">
       <complexType>
          <sequence>
-            <element ref="input_pin" minOccurs="1" maxOccurs="unbounded"/>
+            <element ref="inputs"/>
          </sequence>
          <attribute name="id" type="string" use="required">
             <annotation>
@@ -86,6 +86,14 @@
                </appinfo>
             </annotation>
          </attribute>
+      </complexType>
+   </element>
+
+   <element name="inputs">
+      <complexType>
+         <sequence>
+            <element ref="input_pin" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
       </complexType>
    </element>
 
