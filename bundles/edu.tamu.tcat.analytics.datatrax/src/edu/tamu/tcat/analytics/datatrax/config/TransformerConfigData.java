@@ -13,13 +13,18 @@ import edu.tamu.tcat.analytics.datatrax.Transformer;
  * input data instances into output instances.
  *
  */
-public class FactoryConfiguration
+public class TransformerConfigData
 {
-   public String factoryId;
+   public String registrationId;
+   
+   public String transformerId;
    
    public Map<String, Object> params = new HashMap<>();
    
    public Set<DataInputPin> inputs;
    
-   Class<?> outputType;
+   public Class<?> outputType;
+   
+   
+
 }
