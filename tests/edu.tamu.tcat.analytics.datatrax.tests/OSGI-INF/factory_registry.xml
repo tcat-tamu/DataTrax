@@ -2,6 +2,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" name="edu.tamu.tcat.analytics.datatrax.tests">
    <implementation class="edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry"/>
    <service>
-      <provide interface="edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry"/>
+      <provide interface="edu.tamu.tcat.analytics.datatrax.TransformerRegistry"/>
    </service>
 </scr:component>

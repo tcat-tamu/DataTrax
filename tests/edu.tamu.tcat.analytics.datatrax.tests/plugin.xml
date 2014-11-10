@@ -2,14 +2,27 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="edu.tamu.tcat.analytics.datatrax.transformfactories">
-      <transformer_factory
+         point="edu.tamu.tcat.analytics.datatrax.transformer">
+      <transformer
             class="edu.tamu.tcat.analytics.datatrax.tests.MockTransformer"
             id="edu.tamu.tcat.analytics.datatrax.tests.helloworld"
             output_type="java.lang.String"
-            source_type="java.lang.String"
             title="Hello World Transformer">
-      </transformer_factory>
+         <inputs>
+            <input_pin
+                  description="The person to be addressed"
+                  label="name"
+                  required="true"
+                  type="java.lang.String">
+            </input_pin>
+            <input_pin
+                  description="Optional salutaton. Defaults to &quot;Hello&quot;"
+                  label="salutation"
+                  required="false"
+                  type="java.lang.String">
+            </input_pin>
+         </inputs>
+      </transformer>
    </extension>
 
 </plugin>

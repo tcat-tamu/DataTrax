@@ -25,7 +25,7 @@ import edu.tamu.tcat.analytics.datatrax.TransformerRegistry;
 public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
 {
 
-   public static final String EXT_POINT_ID = "edu.tamu.tcat.analytics.datatrax.transformfactories";
+   public static final String EXT_POINT_ID = "edu.tamu.tcat.analytics.datatrax.transformer";
 
    private final ConcurrentMap<String, ExtTransformerFactoryDefinition> factoryDefinitions = new ConcurrentHashMap<>();
 

@@ -3,7 +3,7 @@
 <schema targetNamespace="edu.tamu.tcat.analytics.datatrax" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="edu.tamu.tcat.analytics.datatrax" id="edu.tamu.tcat.analytics.datatrax.transformfactory" name="Data Transformer Factory"/>
+         <meta.schema plugin="edu.tamu.tcat.analytics.datatrax" id="edu.tamu.tcat.analytics.datatrax.transformfactory" name="DataTrax Transformer"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="transformer_factory"/>
+            <element ref="transformer"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,7 +47,7 @@
       </complexType>
    </element>
 
-   <element name="transformer_factory">
+   <element name="transformer">
       <complexType>
          <sequence>
             <element ref="inputs"/>
