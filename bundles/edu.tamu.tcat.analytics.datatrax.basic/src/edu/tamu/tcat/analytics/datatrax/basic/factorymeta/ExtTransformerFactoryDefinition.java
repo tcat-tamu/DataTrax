@@ -1,5 +1,9 @@
 package edu.tamu.tcat.analytics.datatrax.basic.factorymeta;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IContributor;
@@ -8,6 +12,7 @@ import org.osgi.framework.Bundle;
 
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
+import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
 
 /**
@@ -18,15 +23,32 @@ import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
 public class ExtTransformerFactoryDefinition implements TransformerRegistration
 {
    // TODO handle un-registration of the defining plugin 
+   
    private final String id;
    private final String title;
-   private final IConfigurationElement config;
+   private final String description;
+   private final Set<DataInputPin> inputPins;
+   private final Class<?> outputType;
    
+   private final IConfigurationElement config;
+
+   /**
+    * 
+    * @param e The configuration element 
+    * @throws FactoryConfigurationException If the supplied configuration cannot be processed.
+    */
    public ExtTransformerFactoryDefinition(IConfigurationElement e)
    {
       config = e;
       id = config.getAttribute("id");
       title = config.getAttribute("title");
+      description = config.getAttribute("description");
+      
+      IConfigurationElement[] children = config.getChildren("inputs");
+      inputPins = loadInputPins(children);
+      
+      String outType = config.getAttribute("output_type");
+      outputType = loadClass(config, outType);
    }
    
    @Override
@@ -42,31 +64,21 @@ public class ExtTransformerFactoryDefinition implements TransformerRegistration
    }
    
    @Override
-   public Class<?> getDeclaredSourceType()
+   public String getDescription()
    {
-      String srcType = config.getAttribute("source_type");
-      try 
-      {
-         return loadClass(srcType);
-      } 
-      catch (FactoryConfigurationException fce)
-      {
-         throw new IllegalStateException("Failed to retrieve source type [" + srcType + "] for transformer factory definition: " + this, fce);
-      }
+      return description;
    }
-   
+
+   @Override
+   public Set<DataInputPin> getDeclaredInputs()
+   {
+      return Collections.unmodifiableSet(inputPins);
+   }
+
    @Override
    public Class<?> getDeclaredOutputType()
    {
-      String outType = config.getAttribute("output_type");
-      try 
-      {
-         return loadClass(outType);
-      } 
-      catch (FactoryConfigurationException fce)
-      {
-         throw new IllegalStateException("Failed to retrieve output type [" + outType + "] for transformer factory definition: " + this, fce);
-      }
+      return outputType;
    }
    
    /**
@@ -81,24 +93,15 @@ public class ExtTransformerFactoryDefinition implements TransformerRegistration
     *       evaluation of the supplied type. Note that this includes the case when the bundle
     *       that supplies this factory is no longer available.
     */
-   @Override
-   public boolean canAccept(Class<?> type) throws FactoryConfigurationException
+   public boolean canAccept(Class<?> type) 
    {
-      // TODO should this be a RuntimeException. The client cannot recover (in general) and 
-      //      once the defn is instantiated and made available, the configuration should 
-      //      be valid. The caveat is when the required bundle is still being loaded, but this should not be the case.
-
-      String srcType = config.getAttribute("source_type");
+      for (DataInputPin pin : inputPins)
+      {
+         if (pin.type.isAssignableFrom(type))
+            return true;
+      }
       
-      try 
-      {
-         Class<?> declaredSourceType = loadClass(srcType);
-         return declaredSourceType.isAssignableFrom(type);
-      }
-      catch (FactoryConfigurationException ex)
-      {
-         throw new IllegalStateException("Invalid transformer factory configuration: " + this + ". This may indicate that the providing plugin is no longer available. ", ex);
-      }
+      return false;
    }
    
    /**
@@ -113,14 +116,9 @@ public class ExtTransformerFactoryDefinition implements TransformerRegistration
     *       evaluation of the supplied type. Note that this includes the case when the bundle
     *       that supplies this factory is no longer available.
     */
-   @Override
    public boolean canProduce(Class<?> type) throws FactoryConfigurationException
    {
-      String srcType = config.getAttribute("output_type");
-      if (srcType == null || srcType.trim().isEmpty())
-         throw new FactoryConfigurationException("Invalid factory configuration for " + this + ". No source_type defined.");
-      
-      Class<?> declaredOutputType = loadClass(srcType);
+      Class<?> declaredOutputType = getDeclaredOutputType();
       return type.isAssignableFrom(declaredOutputType);
    }
    
@@ -139,13 +137,47 @@ public class ExtTransformerFactoryDefinition implements TransformerRegistration
       }
    }
 
-   private Class<?> loadClass(String type) throws FactoryConfigurationException
+   @Override
+   public String toString()
+   {
+      return title + " (" + id + ")";
+   }
+
+   private static Set<DataInputPin> loadInputPins(IConfigurationElement[] elems)
+   {
+      Set<DataInputPin> pins = new HashSet<>();
+      for (IConfigurationElement elem : elems)  // should be one
+      {
+         IConfigurationElement[] pinEls = elem.getChildren();
+         for (IConfigurationElement pinEl : pinEls)
+         {
+            pins.add(createDataInputPin(pinEl));
+         }
+      }
+      
+      return pins;
+   }
+   
+   private static DataInputPin createDataInputPin(IConfigurationElement e) throws FactoryConfigurationException
+   {
+      DataInputPin pin = new DataInputPin();
+      
+      pin.label = e.getAttribute("label");
+      pin.description = e.getAttribute("desription");
+      String req = e.getAttribute("required");
+      pin.required = Boolean.parseBoolean(req);
+      pin.type = loadClass(e, e.getAttribute("type"));
+      
+      return pin;
+   }
+
+   private static Class<?> loadClass(IConfigurationElement config, String type) throws FactoryConfigurationException
    {
       IContributor contributor = config.getContributor();
       String symbolicName = contributor.getName();
       Bundle bundle = Platform.getBundle(symbolicName);
       if (bundle == null)
-         throw new FactoryConfigurationException("Failed to load source bundle (" + symbolicName + ") for transformer factory " + this);
+         throw new FactoryConfigurationException("Failed to load source bundle (" + symbolicName + ")");
       
       try 
       {
@@ -153,17 +185,11 @@ public class ExtTransformerFactoryDefinition implements TransformerRegistration
       } 
       catch (ClassNotFoundException cnfe)
       {
-         throw new FactoryConfigurationException("Failed to load class (" + type +") for transformer factory " + this, cnfe);
+         throw new FactoryConfigurationException("Failed to load class (" + type +").", cnfe);
       }
       catch (IllegalStateException ise)
       {
-         throw new FactoryConfigurationException("Unavailable source bundle (" + symbolicName + ") for transformer factory " + this, ise);
+         throw new FactoryConfigurationException("Unavailable source bundle (" + symbolicName + ").", ise);
       }
-   }
-
-   @Override
-   public String toString()
-   {
-      return title + " (" + id + ")";
    }
 }

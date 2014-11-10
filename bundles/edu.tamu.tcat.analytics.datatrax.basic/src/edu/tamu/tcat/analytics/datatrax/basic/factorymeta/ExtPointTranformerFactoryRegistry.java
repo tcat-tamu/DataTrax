@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.Platform;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
-import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistry;
 
 /**
@@ -83,11 +82,11 @@ public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
    }
    
    @Override
-   public Collection<TransformerRegistration> getFactories()
+   public Collection<String> getTransformers()
    {
-      return new ArrayList<TransformerRegistration>(factoryDefinitions.values());
+      return new ArrayList<String>(factoryDefinitions.keySet());
    }
-   
+
    @Override
    public boolean isRegistered(String id)
    {
@@ -108,26 +107,26 @@ public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
    }
 
    @Override
-   public <X> Collection<TransformerRegistration> getCompatibleFactories(Class<X> sourceType)
+   public <X> Collection<String> getCompatibleFactories(Class<X> sourceType)
    {
-      Collection<TransformerRegistration> matches = new HashSet<>();
+      Collection<String> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
       {
          if (defn.canAccept(sourceType))
-            matches.add(defn);
+            matches.add(defn.getId());
       }
       
       return Collections.unmodifiableCollection(matches);
    }
 
    @Override
-   public <X> Collection<TransformerRegistration> getProducingFactories(Class<X> outputType)
+   public <X> Collection<String> getProducingFactories(Class<X> outputType)
    {
-      Collection<TransformerRegistration> matches = new HashSet<>();
+      Collection<String> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
       {
          if (defn.canProduce(outputType))
-            matches.add(defn);
+            matches.add(defn.getId());
       }
       
       return Collections.unmodifiableCollection(matches);
