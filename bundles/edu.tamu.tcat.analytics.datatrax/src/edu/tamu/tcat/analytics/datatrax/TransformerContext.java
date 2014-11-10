@@ -12,5 +12,5 @@ public interface TransformerContext
     * @param label The label of the input data to retrieve.
     * @return The value associated with the supplied input label.
     */
-   <X> X getValue(String label);
+   Object getValue(String label);
 }
