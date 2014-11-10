@@ -11,7 +11,7 @@ import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.WorkflowController;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtTransformerFactoryDefinition;
-import edu.tamu.tcat.analytics.datatrax.config.FactoryConfiguration;
+import edu.tamu.tcat.analytics.datatrax.config.TransformerConfigData;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
 
@@ -46,7 +46,7 @@ public class WorkflowFactoryImpl implements WorkflowController
       
       List<Transformer> transformers = new ArrayList<>();
       Class<?> sourceType = config.sourceType;    // the Java type that will be the input source of the next transformer
-      for (FactoryConfiguration cfg : config.factories)
+      for (TransformerConfigData cfg : config.factories)
       {
          Transformer transformer = loadTransformer(cfg, sourceType);
          transformers.add(transformer);
@@ -67,9 +67,9 @@ public class WorkflowFactoryImpl implements WorkflowController
     *    the specified transformer from being loaded.
     * 
     */
-   private Transformer loadTransformer(FactoryConfiguration config, Class<?> expectInputType) throws WorkflowConfigurationException
+   private Transformer loadTransformer(TransformerConfigData config, Class<?> expectInputType) throws WorkflowConfigurationException
    {
-      String factoryId = config.factoryId;
+      String factoryId = config.transformerId;
       if (!registry.isRegistered(factoryId))
          throw new WorkflowConfigurationException("Invalid worflow configuration. No factory is registered for [" + factoryId + "]");
             

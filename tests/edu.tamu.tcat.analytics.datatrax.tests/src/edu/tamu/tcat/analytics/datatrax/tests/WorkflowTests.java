@@ -26,7 +26,7 @@ import edu.tamu.tcat.analytics.datatrax.DataTransformWorkflow;
 import edu.tamu.tcat.analytics.datatrax.basic.WorkflowConfigBuilderImpl;
 import edu.tamu.tcat.analytics.datatrax.basic.WorkflowFactoryImpl;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
-import edu.tamu.tcat.analytics.datatrax.config.FactoryConfiguration;
+import edu.tamu.tcat.analytics.datatrax.config.TransformerConfigData;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
 import edu.tamu.tcat.analytics.image.integral.datatrax.BufferedImageAdapter;
@@ -61,13 +61,13 @@ public class WorkflowTests
       
    }
    
-   private FactoryConfiguration createCfg(String id, Map<String, Object> params)
+   private TransformerConfigData createCfg(String id, Map<String, Object> params)
    {
       if (params == null)
          params = new HashMap<String, Object>();
       
-      FactoryConfiguration cfg = new FactoryConfiguration();
-      cfg.factoryId = id;
+      TransformerConfigData cfg = new TransformerConfigData();
+      cfg.transformerId = id;
       cfg.params = params;
       
       return cfg;
@@ -97,9 +97,9 @@ public class WorkflowTests
       assertNotNull("No workflow configuration was built", cfg);
       assertEquals("Unexpected number of factories configured", 3, cfg.factories.size());
       
-      assertEquals("Cannot find BufferedImageAdapter", BufferedImageAdapter.EXTENSION_ID, cfg.factories.get(0).factoryId);
-      assertEquals("Cannot find FastSauvolaTransformer", FastSauvolaTransformer.EXTENSION_ID, cfg.factories.get(1).factoryId);
-      assertEquals("Cannot find CCAnalyzer", CCAnalyzer.EXTENSION_ID, cfg.factories.get(2).factoryId);
+      assertEquals("Cannot find BufferedImageAdapter", BufferedImageAdapter.EXTENSION_ID, cfg.factories.get(0).transformerId);
+      assertEquals("Cannot find FastSauvolaTransformer", FastSauvolaTransformer.EXTENSION_ID, cfg.factories.get(1).transformerId);
+      assertEquals("Cannot find CCAnalyzer", CCAnalyzer.EXTENSION_ID, cfg.factories.get(2).transformerId);
    }
    
    @Test

@@ -19,7 +19,7 @@ public class WorkflowConfiguration
     */
    public Class<?> sourceType = Object.class;
    
-   public List<FactoryConfiguration> factories = new ArrayList<>();
+   public List<TransformerConfigData> factories = new ArrayList<>();
    
    public WorkflowConfiguration()
    {

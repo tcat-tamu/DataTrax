@@ -11,9 +11,9 @@ import java.util.List;
 public interface WorkflowConfigurationBuilder
 {
 
-   void append(FactoryConfiguration config) throws WorkflowConfigurationException; 
+   void append(TransformerConfigData config) throws WorkflowConfigurationException; 
    
-   void append(List<FactoryConfiguration> configs) throws WorkflowConfigurationException;
+   void append(List<TransformerConfigData> configs) throws WorkflowConfigurationException;
    
    WorkflowConfiguration build();
    

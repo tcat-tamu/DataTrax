@@ -9,7 +9,7 @@ import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtTransformerFactoryDefinition;
-import edu.tamu.tcat.analytics.datatrax.config.FactoryConfiguration;
+import edu.tamu.tcat.analytics.datatrax.config.TransformerConfigData;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
 
@@ -40,7 +40,7 @@ public class WorkflowConfigBuilderImpl
       cfg.description = desc;
    }
    
-   public void append(FactoryConfiguration config) throws WorkflowConfigurationException
+   public void append(TransformerConfigData config) throws WorkflowConfigurationException
    {
       ExtTransformerFactoryDefinition candidate = getFactory(config);
       checkTypeCompatibility(candidate);
@@ -84,7 +84,7 @@ public class WorkflowConfigBuilderImpl
    // TODO add API for splitting and merging workflow configurations
    // TODO add methods to insert elements in the middle of a workflow.
 
-   public void append(List<FactoryConfiguration> configs) throws WorkflowConfigurationException
+   public void append(List<TransformerConfigData> configs) throws WorkflowConfigurationException
    {
       // TODO Auto-generated method stub
       
@@ -163,15 +163,15 @@ public class WorkflowConfigBuilderImpl
       return getFactory(cfg.factories.get(ix));
    }
    
-   private ExtTransformerFactoryDefinition getFactory(FactoryConfiguration config)
+   private ExtTransformerFactoryDefinition getFactory(TransformerConfigData config)
    {
       try 
       {
-         return registry.getFactory(config.factoryId);
+         return registry.getFactory(config.transformerId);
       } 
       catch (FactoryUnavailableException ex)
       {
-         throw new IllegalStateException("Invalid configuration. Cannot retrieve the transformer factory [" + config.factoryId + "]", ex);
+         throw new IllegalStateException("Invalid configuration. Cannot retrieve the transformer factory [" + config.transformerId + "]", ex);
       }
    }
 
