@@ -25,21 +25,7 @@ import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
  */
 public interface Transformer
 {
-   /**
-    * @return A type token for the input data type. 
-    */
-   @Deprecated
-   Class<?> getSourceType();
-   
-   @Deprecated // a property of the registration, not the transformer
-   Set<DataInputPin> getInputPins();
-   
-   /**
-    * @return A type token for the output data type. 
-    */
-   @Deprecated // a property of the registration, not the transformer
-   Class<?> getOutputType();
-   
+
    /**
     * Provides configuration data to be used to parameterize this Transformer.
     * 
