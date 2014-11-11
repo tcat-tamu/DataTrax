@@ -1,12 +1,10 @@
 package edu.tamu.tcat.analytics.datatrax;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.xml.transform.TransformerFactory;
 
-import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 
 /**
