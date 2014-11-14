@@ -1,5 +1,7 @@
 package edu.tamu.tcat.analytics.datatrax.basic.refactor;
 
+import edu.tamu.tcat.analytics.datatrax.DataValueKey;
+
 public class ExecutionContext
 {
 
@@ -18,16 +20,25 @@ public class ExecutionContext
       throw new UnsupportedOperationException();
    }
 
-   public void put(String transfomerId, String label, Object value)
+   public void put(DataValueKey key, Object value)
    {
       
    }
    
-   public void get()
+   public Object get(DataValueKey key)
    {
-      
+      return null;
    }
+   
    public static interface DataValueListener {
       
+      /**
+       * Called when data is made available to the {@link ExecutionContext}.
+       *  
+       * @param key The {@link DataValueKey} that defines  
+       * @param value
+       */
+      void dataAvailable(DataValueKey key, Object value);
+
    }
 }
