@@ -1,4 +1,4 @@
-package edu.tamu.tcat.analytics.datatrax.basic.refactor;
+package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.Collection;
 import java.util.HashMap;

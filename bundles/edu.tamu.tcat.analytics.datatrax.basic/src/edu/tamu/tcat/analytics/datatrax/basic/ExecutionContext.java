@@ -1,4 +1,4 @@
-package edu.tamu.tcat.analytics.datatrax.basic.refactor;
+package edu.tamu.tcat.analytics.datatrax.basic;
 
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 
