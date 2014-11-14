@@ -19,7 +19,7 @@ import edu.tamu.tcat.analytics.datatrax.WorkflowObserver;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 
-public class WorkflowControllerImpl implements WorkflowController, TaskExecutionService
+public class WorkflowControllerImpl implements WorkflowController
 {
    // executor for tasks submitted by individual workflows
    private ExecutorService taskExector;
@@ -81,8 +81,7 @@ public class WorkflowControllerImpl implements WorkflowController, TaskExecution
       return params;
    }
    
-   @Override
-   public void execute(Runnable task)
+   private void execute(Runnable task)
    {
       taskExector.submit(task);
    }
@@ -101,13 +100,16 @@ public class WorkflowControllerImpl implements WorkflowController, TaskExecution
    @Override
    public <X> void process(X sourceData, ResultsCollector collector)
    {
-      final TaskExecutionService exec = this;
+      @SuppressWarnings("resource")    // temporary reference
+      final WorkflowControllerImpl exec = this;
       workflowExectorService.submit(new Runnable()
       {
          @Override
          public void run()
          {
-            WorkflowExecutor workflow = new WorkflowExecutor(exec, transformers);
+            // FIXME check to ensure this hasn't been closed
+            
+            WorkflowExecutor workflow = new WorkflowExecutor(exec::execute, transformers);
             workflow.process(sourceData, collector);
          }
       });
@@ -133,15 +135,11 @@ public class WorkflowControllerImpl implements WorkflowController, TaskExecution
       private final ExecutionContext context;
       private final Collection<TransformerController> controllers;
 
-      private final TaskExecutionService exec;
       private Set<ConfiguredTransformer> transformers;
-
-      private Object data;
 
       public WorkflowExecutor(TaskExecutionService exec, Set<ConfiguredTransformer> transformers)
       {
          this.id = UUID.randomUUID();
-         this.exec = exec;
          this.context = new ExecutionContext();
          
          this.controllers = new HashSet<>();
@@ -160,9 +158,17 @@ public class WorkflowControllerImpl implements WorkflowController, TaskExecution
 
       void process(Object data, ResultsCollector collector)
       {
-         // TODO stich results collector to dat output handlers
+         // TODO stitch results collector to data output handlers
          context.put(null, data);
       }
    }
+   
+   
+   public static interface TaskExecutionService
+   {
+      void execute(Runnable task);
+   
+   }
+
 
 }
