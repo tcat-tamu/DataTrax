@@ -2,6 +2,7 @@ package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.xml.transform.TransformerConfigurationException;
 
@@ -42,7 +43,7 @@ public class SimpleTransformerConfig implements TransformerConfiguration, Transf
    }
 
    @Override
-   public String getId()
+   public UUID getId()
    {
       return data.transformerId;
    }
@@ -97,7 +98,7 @@ public class SimpleTransformerConfig implements TransformerConfiguration, Transf
    }
    
    @Override
-   public String getDataSource(DataInputPin pin)
+   public UUID getDataSource(DataInputPin pin)
    {
       if (!hasInputPin(pin))
          throw new IllegalArgumentException("Cannot retrieve data source. Invalid input pin [" + pin.label + "]");

@@ -25,8 +25,7 @@ import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
 public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
 {
 
-   // TODO implement core editing
-   //      restore from existing configuration
+   // TODO restore from existing configuration
    
    private final ExtPointTranformerFactoryRegistry registry;
 
@@ -34,8 +33,9 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
    private String title;
    private String description;
    private Class<?> type;
-   
+
    private Map<UUID, TransformerConfigEditor> transformerEditors = new HashMap<>();
+   private Set<UUID> outputs = new HashSet<>();
 
    
    public WorkflowConfigBuilderImpl(ExtPointTranformerFactoryRegistry reg)
@@ -64,7 +64,7 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
    {
       try 
       {
-         UUID tId = UUID.fromString(tCfg.getId());
+         UUID tId = tCfg.getId();
          TransformerConfigData data = TransformerConfigData.create(tCfg);
          TransformerConfigEditor editor = SimpleTransformerConfig.instantiate(reg, data);
 
@@ -123,14 +123,13 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
          throw new WorkflowConfigurationException("Invalid transformer registration. The transformer '" + reg.getTitle() + "[" + reg.getId() + "] is not currently registered.");
       
       TransformerConfigData data = new TransformerConfigData();
-      UUID uuid = UUID.randomUUID();
-      data.transformerId = uuid.toString();
+      data.transformerId = UUID.randomUUID();
       data.registrationId = reg.getId();
       
       try
       {
          SimpleTransformerConfig editor = SimpleTransformerConfig.instantiate(registry, data);
-         this.transformerEditors.put(uuid, editor);
+         this.transformerEditors.put(data.transformerId, editor);
          return editor;
       }
       catch (FactoryUnavailableException e)

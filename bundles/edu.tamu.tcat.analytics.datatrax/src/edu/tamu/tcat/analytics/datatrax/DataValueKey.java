@@ -1,5 +1,7 @@
 package edu.tamu.tcat.analytics.datatrax;
 
+import java.util.UUID;
+
 /**
  * Immutable identifier for the source of a data object within a data workflow. This uniquely 
  * identifies the transformer that produced the data instance and the Java type of the object.
@@ -13,7 +15,7 @@ public interface DataValueKey
     *       creating a data value. Will not be {@code null}. Must be unique within the context
     *       of a configured workflow.
     */
-   String getTransformerId();
+   UUID getTransformerId();
    
    /**
     * @return The Java type of object associated with this key.

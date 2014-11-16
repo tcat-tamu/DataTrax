@@ -51,7 +51,7 @@ public class TransformerController implements DataValueListener
       
       for (DataInputPin pin : cfg.getDefinedInputs())
       {
-         String dataSource = cfg.getDataSource(pin);
+         UUID dataSource = cfg.getDataSource(pin);
          SimpleDataValueKey key = new SimpleDataValueKey(dataSource, pin.type);
          
          inputs.define(key, pin.label);

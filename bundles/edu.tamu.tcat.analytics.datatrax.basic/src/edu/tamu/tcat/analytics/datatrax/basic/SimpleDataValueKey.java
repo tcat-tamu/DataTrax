@@ -1,6 +1,7 @@
 package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 
@@ -8,9 +9,9 @@ public class SimpleDataValueKey implements DataValueKey
 {
    
    private final Class<?> type;
-   private final String sourceId;
+   private final UUID sourceId;
 
-   public SimpleDataValueKey(String sourceId, Class<?> type)
+   public SimpleDataValueKey(UUID sourceId, Class<?> type)
    {
       Objects.requireNonNull(sourceId);
       Objects.requireNonNull(type);
@@ -20,7 +21,7 @@ public class SimpleDataValueKey implements DataValueKey
    }
    
    @Override
-   public String getTransformerId()
+   public UUID getTransformerId()
    {
       return sourceId;
    }
@@ -49,6 +50,6 @@ public class SimpleDataValueKey implements DataValueKey
          return false;
       
       DataValueKey key = DataValueKey.class.cast(obj);
-      return type.equals(key.getType()) && sourceId.equalsIgnoreCase(key.getTransformerId());
+      return type.equals(key.getType()) && sourceId.equals(key.getTransformerId());
    }
 }

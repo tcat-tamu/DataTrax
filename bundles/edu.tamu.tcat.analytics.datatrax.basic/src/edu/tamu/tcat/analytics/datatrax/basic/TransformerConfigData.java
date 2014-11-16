@@ -3,6 +3,7 @@ package edu.tamu.tcat.analytics.datatrax.basic;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
@@ -18,9 +19,9 @@ import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 public class TransformerConfigData
 {
    public String registrationId;
-   public String transformerId;
+   public UUID transformerId;
    public Map<String, Object> params = new HashMap<>();
-   public Map<String, String> inputs = new HashMap<>();
+   public Map<String, UUID> inputs = new HashMap<>();    // map of input pin labels to transformers supply that value
    public Class<?> outputType;
 
    public TransformerConfigData()
