@@ -24,9 +24,6 @@ import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
  */
 public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
 {
-
-   // TODO restore from existing configuration
-   
    private final ExtPointTranformerFactoryRegistry registry;
 
    private UUID id;
