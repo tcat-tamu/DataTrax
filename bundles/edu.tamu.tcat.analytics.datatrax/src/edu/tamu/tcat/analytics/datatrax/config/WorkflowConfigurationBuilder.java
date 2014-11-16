@@ -71,6 +71,21 @@ public interface WorkflowConfigurationBuilder
     */
    TransformerConfigEditor createTransformer(TransformerRegistration reg) throws WorkflowConfigurationException;
    
+   /**
+    * Removes the configuration for the indicated transformer from this workflow. This will 
+    * also remove the output of the indicated transformer from all input pins it has been 
+    * connected to. Note that this action is irreversible and that, once removed, the 
+    * associated transformer cannot be restored.
+    * 
+    * @param id The id of the transformer to be removed.
+    */
+   void removeTransformer(UUID id);
+   
+   /**
+    * @return A set of ids for all transformers that are registered as outputs from this 
+    *       workflow.
+    */
+   Set<UUID> listOutputs();
    
    /**
     * Registers a transformer in this workflow as supplying output values that should be 

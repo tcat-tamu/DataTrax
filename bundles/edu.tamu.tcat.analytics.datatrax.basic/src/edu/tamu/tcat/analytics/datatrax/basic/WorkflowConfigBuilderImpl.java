@@ -34,7 +34,7 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
    private String description;
    private Class<?> type;
 
-   private Map<UUID, TransformerConfigEditor> transformerEditors = new HashMap<>();
+   private Map<UUID, SimpleTransformerConfig> transformerEditors = new HashMap<>();
    private Set<UUID> outputs = new HashSet<>();
 
    
@@ -66,7 +66,7 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       {
          UUID tId = tCfg.getId();
          TransformerConfigData data = TransformerConfigData.create(tCfg);
-         TransformerConfigEditor editor = SimpleTransformerConfig.instantiate(reg, data);
+         SimpleTransformerConfig editor = SimpleTransformerConfig.instantiate(reg, data);
 
          impl.transformerEditors.put(tId, editor);
       }
@@ -148,6 +148,22 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       }
       
       return editor;
+   }
+   
+   @Override
+   public void removeTransformer(UUID id)
+   {
+      this.transformerEditors.remove(id);
+      for (SimpleTransformerConfig ed : this.transformerEditors.values())
+      {
+         ed.removeInput(id);
+      }
+   }
+   
+   @Override
+   public Set<UUID> listOutputs()
+   {
+      return Collections.unmodifiableSet(this.outputs);
    }
 
    @Override

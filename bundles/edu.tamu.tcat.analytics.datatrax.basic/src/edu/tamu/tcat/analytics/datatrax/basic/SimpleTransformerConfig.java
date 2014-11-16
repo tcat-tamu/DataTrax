@@ -106,6 +106,25 @@ public class SimpleTransformerConfig implements TransformerConfiguration, Transf
       return data.inputs.get(pin.label);
    }
 
+   /**
+    * Removes the stitching for any input values provided by the indicated transformer.
+    * 
+    * @param transformerId The transformer whose output should no longer be used as input for 
+    *    this transformer.
+    */
+   public void removeInput(UUID transformerId)
+   {
+      if (!data.inputs.containsValue(transformerId))
+         return;
+      
+      for (String key : data.inputs.keySet())
+      {
+         UUID id = data.inputs.get(key);
+         if (transformerId.equals(id))
+            data.inputs.remove(key);
+      }
+   }
+
    @Override
    public Class<?> getOutputType()
    {
