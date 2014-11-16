@@ -1,179 +1,215 @@
 package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
-import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
-import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtTransformerFactoryDefinition;
-import edu.tamu.tcat.analytics.datatrax.config.TransformerConfigData;
+import edu.tamu.tcat.analytics.datatrax.config.TransformerConfigEditor;
+import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
+import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationBuilder;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
 
-public class WorkflowConfigBuilderImpl
+/**
+ *
+ * Note that this class is not thread safe. 
+ */
+public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
 {
 
-   private WorkflowConfiguration cfg;
+   // TODO implement core editing
+   //      restore from existing configuration
+   
    private final ExtPointTranformerFactoryRegistry registry;
+
+   private UUID id;
+   private String title;
+   private String description;
+   private Class<?> type;
+   
+   private Map<UUID, TransformerConfigEditor> transformerEditors = new HashMap<>();
+
    
    public WorkflowConfigBuilderImpl(ExtPointTranformerFactoryRegistry reg)
    {
       this.registry = reg;
-      this.cfg = new WorkflowConfiguration();
+//      this.cfg = new WorkflowConfiguration();
+   }
+   
+   public static WorkflowConfigBuilderImpl create(ExtPointTranformerFactoryRegistry reg, WorkflowConfiguration config) throws WorkflowConfigurationException 
+   {
+      WorkflowConfigBuilderImpl impl = new WorkflowConfigBuilderImpl(reg);
+      
+      impl.id = config.getId();
+      impl.title = config.getTitle();
+      impl.description = config.getDescription();
+      
+      for (TransformerConfiguration tCfg : config.getTransformers())
+      {
+         appendEditor(reg, tCfg, impl);
+      }
+      
+      return impl;
    }
 
+   private static void appendEditor(ExtPointTranformerFactoryRegistry reg, TransformerConfiguration tCfg, WorkflowConfigBuilderImpl impl) throws WorkflowConfigurationException
+   {
+      try 
+      {
+         UUID tId = UUID.fromString(tCfg.getId());
+         TransformerConfigData data = TransformerConfigData.create(tCfg);
+         TransformerConfigEditor editor = SimpleTransformerConfig.instantiate(reg, data);
+
+         impl.transformerEditors.put(tId, editor);
+      }
+      catch (FactoryUnavailableException fue)
+      {
+         throw new WorkflowConfigurationException("Failed to load configuration for transformer [" + tCfg.getId() + "]", fue);
+      }
+      catch (IllegalArgumentException iae)
+      {
+         throw new WorkflowConfigurationException("Invalid transformer id [" + tCfg.getId() + "]. Expected UUID.", iae);
+      }
+   }
+
+   public static Map<UUID, String> checkConfiguration(ExtPointTranformerFactoryRegistry reg, WorkflowConfiguration config)
+   {
+      // TODO check the supplied configuration and determine if there are any configuration errors.
+      
+      throw new UnsupportedOperationException();
+   }
+   
+   @Override
    public void setTitle(String title)
    {
       Objects.requireNonNull(title, "The workflow title cannot be null.");
       
-      cfg.title = title;
+      this.title = title;
    }
    
+   @Override
    public void setDescription(String desc)
    {
       if (desc == null)
          desc = "";
       
-      cfg.description = desc;
+      this.description = desc;
    }
    
-   public void append(TransformerConfigData config) throws WorkflowConfigurationException
+   @Override
+   public void setInputType(Class<?> cls)
    {
-      ExtTransformerFactoryDefinition candidate = getFactory(config);
-      checkTypeCompatibility(candidate);
-      
-      // TODO test supplied configuration.
-      try 
-      {
-         Transformer transformer = candidate.instantiate();
-         transformer.configure(config.params);
-      } 
-      catch (Exception ex)
-      {
-         throw new WorkflowConfigurationException("Cannot append transformer factory: " 
-               + candidate.getTitle() + "[" + candidate.getId() + "]. Failed to instantiate and configure instance.", ex);
-         
-      }
-      
-      cfg.factories.add(config);
-   }
-
-   /**
-    * Checks to ensure that the source type of a candidate transformer factory is compatible 
-    * with the output type of the final factory in the growing workflow configuration.
-    *   
-    * @param candidate The candidate factory to append
-    * @throws WorkflowConfigurationException If the supplied candidate cannot be appended to 
-    *    the current workflow.
-    */
-   private void checkTypeCompatibility(TransformerRegistration candidate) throws WorkflowConfigurationException
-   {
-      if (size() != 0)
-      {
-         TransformerRegistration tail = getTail();
-         if (!candidate.canAccept(tail.getDeclaredOutputType()))
-            throw new WorkflowConfigurationException("Cannot append transformer factory: " 
-                  + candidate.getTitle() + "[" + candidate.getId() + "]. Declared input type [" + candidate.getDeclaredSourceType() + "] "
-                  + "is not compatible with preceeding factory's output type [" + tail.getDeclaredOutputType() +"]");
-      }
+      this.type = cls;
    }
    
-   // TODO add API for splitting and merging workflow configurations
-   // TODO add methods to insert elements in the middle of a workflow.
-
-   public void append(List<TransformerConfigData> configs) throws WorkflowConfigurationException
+   @Override
+   public Set<UUID> listTransformers()
    {
-      // TODO Auto-generated method stub
+      return transformerEditors.keySet();
+   }
+
+   @Override
+   public TransformerConfigEditor createTransformer(TransformerRegistration reg) throws WorkflowConfigurationException
+   {
+      if (!registry.isRegistered(reg.getId()))
+         throw new WorkflowConfigurationException("Invalid transformer registration. The transformer '" + reg.getTitle() + "[" + reg.getId() + "] is not currently registered.");
       
+      TransformerConfigData data = new TransformerConfigData();
+      UUID uuid = UUID.randomUUID();
+      data.transformerId = uuid.toString();
+      data.registrationId = reg.getId();
+      
+      try
+      {
+         SimpleTransformerConfig editor = SimpleTransformerConfig.instantiate(registry, data);
+         this.transformerEditors.put(uuid, editor);
+         return editor;
+      }
+      catch (FactoryUnavailableException e)
+      {
+         throw new WorkflowConfigurationException("Failed to create config editor:", e);
+      }
    }
 
-   /**
-    * 
-    * @return A {@link Collection} of all registered factories that can be appended to the 
-    *       current workflow. 
-    */
-   public Collection<TransformerRegistration> listValidFactories()
+   @Override
+   public TransformerConfigEditor editTransformer(UUID transfomerId) throws WorkflowConfigurationException
    {
-      return registry.getCompatibleFactories(getTail().getDeclaredOutputType());
+      TransformerConfigEditor editor = this.transformerEditors.get(transfomerId);
+      if (editor == null)
+      {
+         throw new WorkflowConfigurationException("No transformer with id [" + transfomerId + "] has been defined for this workflow [" + this.title + ": " + this.id + "]");
+      }
+      
+      return editor;
    }
 
+   @Override
    public WorkflowConfiguration build()
    {
-      cfg.sourceType = getHead().getDeclaredSourceType();
-      
-      return cfg;
-   }
-
-   public Class<?> getSourceType()
-   {
-      if (size() == 0)
-         return Object.class;
-      
-      return getHead().getDeclaredOutputType();
-   }
-
-   /**
-    * @return The Java type of the output produced by the final transformer in the workflow.
-    */
-   public Class<?> getTailType()
-   {
-      if (size() == 0)
-         return Object.class;
-      
-      return getTail().getDeclaredOutputType();
-   }
-   
-   public int size()
-   {
-      return cfg.factories.size();
-   }
-
-   /**
-    * 
-    * @return The first {@link TransformerRegistration} in the current workflow configuration. Will
-    *    not be {@code null}. 
-    * @throws IllegalStateException If no factories have been added to the current configuration
-    *    or if the defined factory cannot be retrieved from the registry. 
-    */
-   private TransformerRegistration getHead()
-   {
-      return getFactory(0);
-   }
-   
-   /**
-    * 
-    * @return The final {@link TransformerRegistration} in the current workflow configuration. Will
-    *    not be {@code null}. 
-    * @throws IllegalStateException If no factories have been added to the current configuration 
-    *    or if the defined factory cannot be retrieved from the registry. 
-    */
-   private TransformerRegistration getTail()
-   {
-      return getFactory(size() - 1);
-   }
-
-   private ExtTransformerFactoryDefinition getFactory(int ix)
-   {
-      if (ix < 0 || ix >= size())
-         throw new ArrayIndexOutOfBoundsException("Cannot retrieve transformers factory at position [" + ix + "]");
-      
-      return getFactory(cfg.factories.get(ix));
-   }
-   
-   private ExtTransformerFactoryDefinition getFactory(TransformerConfigData config)
-   {
-      try 
+      Set<TransformerConfiguration> transformers = new HashSet<>();
+      for (TransformerConfigEditor editor : this.transformerEditors.values())
       {
-         return registry.getFactory(config.transformerId);
-      } 
-      catch (FactoryUnavailableException ex)
+         transformers.add(editor.getConfiguration());
+      }
+      
+      return new WorkflowConfigImpl(id, title, description, type, transformers);
+   }
+   
+   private static class WorkflowConfigImpl implements WorkflowConfiguration
+   {
+      private final UUID id;
+      private final String title;
+      private final String description;
+      private final Class<?> type;
+      private final Set<TransformerConfiguration> transformers;
+      
+      WorkflowConfigImpl(UUID id, String title, String description, Class<?> type, Set<TransformerConfiguration> transformers)
       {
-         throw new IllegalStateException("Invalid configuration. Cannot retrieve the transformer factory [" + config.transformerId + "]", ex);
+         this.id = id;
+         this.title = title;
+         this.description = description;
+         this.type = type;
+         this.transformers = transformers;
+         
+      }
+
+      @Override
+      public UUID getId()
+      {
+         return id;
+      }
+
+      @Override
+      public String getTitle()
+      {
+         return title;
+      }
+
+      @Override
+      public String getDescription()
+      {
+         return description;
+      }
+
+      @Override
+      public Class<?> getSourceType()
+      {
+         return type;
+      }
+
+      @Override
+      public Collection<TransformerConfiguration> getTransformers()
+      {
+         return Collections.unmodifiableCollection(transformers);
       }
    }
 
-   // TODO add insert method
 }

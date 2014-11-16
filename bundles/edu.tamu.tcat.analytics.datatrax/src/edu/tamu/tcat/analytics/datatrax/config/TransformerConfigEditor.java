@@ -28,7 +28,9 @@ public interface TransformerConfigEditor
    void setDataSource(DataInputPin pin, TransformerConfiguration source) throws TransformerConfigurationException;
    
    /**
-    * @return The configuration instance represented by the current state of this editor.
+    * @return The configuration instance represented by the current state of this editor. The
+    *    returned value will be detached from this editor such that future changes to the editor
+    *    are not reflected in the returned configuration instance.
     */
    TransformerConfiguration getConfiguration();
 

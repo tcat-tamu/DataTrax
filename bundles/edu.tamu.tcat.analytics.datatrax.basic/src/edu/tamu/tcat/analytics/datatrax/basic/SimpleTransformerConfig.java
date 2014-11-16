@@ -12,10 +12,10 @@ import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfigEditor;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 
-public class JsonTransformerConfig implements TransformerConfiguration, TransformerConfigEditor
+public class SimpleTransformerConfig implements TransformerConfiguration, TransformerConfigEditor
 {
 
-   public static JsonTransformerConfig instantiate(TransformerRegistry registry, TransformerConfigData data) throws FactoryUnavailableException
+   public static SimpleTransformerConfig instantiate(TransformerRegistry registry, TransformerConfigData data) throws FactoryUnavailableException
    {
       // check invariants. These values must be supplied.
       Objects.requireNonNull(data.transformerId, "Invalid initial configuration data: no transformer id supplied.");
@@ -29,13 +29,13 @@ public class JsonTransformerConfig implements TransformerConfiguration, Transfor
             data.inputs.put(pin.label, null);
       }
       
-      return new JsonTransformerConfig(data, registration);
+      return new SimpleTransformerConfig(data, registration);
    }
    
    private TransformerConfigData data;
    private TransformerRegistration registration;
 
-   private JsonTransformerConfig(TransformerConfigData data, TransformerRegistration reg)
+   private SimpleTransformerConfig(TransformerConfigData data, TransformerRegistration reg)
    {
       this.data = data;
       this.registration = reg;
@@ -144,6 +144,6 @@ public class JsonTransformerConfig implements TransformerConfiguration, Transfor
    @Override
    public TransformerConfiguration getConfiguration()
    {
-      return new JsonTransformerConfig(new TransformerConfigData(data), registration);
+      return new SimpleTransformerConfig(TransformerConfigData.create(data), registration);
    }
 }
