@@ -151,6 +151,21 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
    }
 
    @Override
+   public void registerOutput(UUID transformerId) throws WorkflowConfigurationException
+   {
+      if (!this.transformerEditors.containsKey(transformerId))
+         throw new WorkflowConfigurationException("Cannot register output value. The requested transformer [" + transformerId + "] is not part of this workflow.");
+      
+      outputs.add(transformerId);
+   }
+   
+   @Override
+   public void removeOutput(UUID transformerId) 
+   {
+      outputs.remove(transformerId);
+   }
+   
+   @Override
    public WorkflowConfiguration build()
    {
       Set<TransformerConfiguration> transformers = new HashSet<>();

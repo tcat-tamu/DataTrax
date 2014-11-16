@@ -38,6 +38,17 @@ public interface WorkflowConfigurationBuilder
     */
    TransformerConfigEditor createTransformer(TransformerRegistration reg) throws WorkflowConfigurationException;
    
+   void registerOutput(UUID transformerId) throws WorkflowConfigurationException;
+
+   void removeOutput(UUID transformerId);
+
+   /**
+    * 
+    * @return The current state of this configuration. Note that this may be called multiple 
+    *       times on the same {@code WorkflowConfigurationBuilder}. Each returned 
+    *       {@link WorkflowConfiguration} instance will be detached from this builder so that
+    *       subsequent updates to the builder do not impact the returned instance.
+    */
    WorkflowConfiguration build();
 
    
