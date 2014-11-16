@@ -82,7 +82,7 @@ public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
    }
    
    @Override
-   public Collection<String> getTransformers()
+   public Collection<String> getRegistrations()
    {
       return new ArrayList<String>(factoryDefinitions.keySet());
    }
@@ -95,7 +95,7 @@ public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
    }
    
    @Override
-   public ExtTransformerFactoryDefinition getFactory(String id) throws FactoryUnavailableException 
+   public ExtTransformerFactoryDefinition getRegistration(String id) throws FactoryUnavailableException 
    {
       ExtTransformerFactoryDefinition factory = factoryDefinitions.get(id);
       if (factory == null)
@@ -107,7 +107,7 @@ public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
    }
 
    @Override
-   public <X> Collection<String> getCompatibleFactories(Class<X> sourceType)
+   public <X> Collection<String> getCompatibleRegistrations(Class<X> sourceType)
    {
       Collection<String> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
@@ -120,7 +120,7 @@ public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
    }
 
    @Override
-   public <X> Collection<String> getProducingFactories(Class<X> outputType)
+   public <X> Collection<String> getProducingRegistrations(Class<X> outputType)
    {
       Collection<String> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())

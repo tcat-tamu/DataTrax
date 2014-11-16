@@ -32,7 +32,7 @@ public class ExtTranformerRegistryTests
       try (ServiceHelper helper = new ServiceHelper(Activator.getDefault().getContext()))
       {
          TransformerRegistry registry = helper.waitForService(TransformerRegistry.class, 10_000);
-         TransformerRegistration registration = registry.getFactory("edu.tamu.tcat.analytics.datatrax.tests.helloworld");
+         TransformerRegistration registration = registry.getRegistration("edu.tamu.tcat.analytics.datatrax.tests.helloworld");
          assertNotNull("Failed to retrieve hello world factory.", registration);
          
          assertTrue("Cannot accept String.class", registration.canAccept(String.class));
@@ -49,7 +49,7 @@ public class ExtTranformerRegistryTests
       try (ServiceHelper helper = new ServiceHelper(Activator.getDefault().getContext()))
       {
          TransformerRegistry registry = helper.waitForService(TransformerRegistry.class, 10_000);
-         TransformerRegistration reg = registry.getFactory("edu.tamu.tcat.analytics.datatrax.tests.helloworld");
+         TransformerRegistration reg = registry.getRegistration("edu.tamu.tcat.analytics.datatrax.tests.helloworld");
          assertNotNull("Failed to retrieve hello world factory.", reg);
          
          Transformer hello = reg.instantiate();

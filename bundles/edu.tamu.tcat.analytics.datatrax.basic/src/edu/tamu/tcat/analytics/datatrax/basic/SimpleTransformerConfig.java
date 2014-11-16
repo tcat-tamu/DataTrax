@@ -23,7 +23,7 @@ public class SimpleTransformerConfig implements TransformerConfiguration, Transf
       Objects.requireNonNull(data.registrationId, "Invalid initial configuration: no transformer registration supplied.");
       
       // ensure that all pins have been set
-      TransformerRegistration registration = registry.getFactory(data.registrationId);
+      TransformerRegistration registration = registry.getRegistration(data.registrationId);
       for (DataInputPin pin : registration.getDeclaredInputs())
       {
          if (!data.inputs.containsKey(pin.label))
