@@ -2,6 +2,7 @@ package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerContext;
+import edu.tamu.tcat.analytics.datatrax.basic.ExecutionContext.DataAvailableEvent;
 import edu.tamu.tcat.analytics.datatrax.basic.ExecutionContext.DataValueListener;
 import edu.tamu.tcat.analytics.datatrax.basic.WorkflowControllerImpl.TaskExecutionService;
 import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
@@ -69,8 +71,18 @@ public class TransformerController implements DataValueListener
    }
 
    @Override
-   public void dataAvailable(DataValueKey key, Object value)
+   public Set<DataValueKey> getKeys()
    {
+      return inputs.labels.keySet();
+   }
+   
+   @Override
+   public void dataAvailable(DataAvailableEvent e)
+   {
+      DataValueKey key = e.getKey();
+      Object value = e.getValue();
+      
+      
       if (!inputs.isDefined(key))
          return;
       
