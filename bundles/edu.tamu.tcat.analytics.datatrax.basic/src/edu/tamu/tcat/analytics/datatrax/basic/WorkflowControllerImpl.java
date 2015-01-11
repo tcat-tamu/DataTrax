@@ -58,6 +58,7 @@ public class WorkflowControllerImpl implements WorkflowController
    // executor for running the workflow over a single input data
    private ExecutorService workflowExectorService;
    
+   private final DataValueKey inputKey;
    private final WorkflowConfiguration config;
    private final Set<ConfiguredTransformer> transformers;
 
@@ -66,6 +67,7 @@ public class WorkflowControllerImpl implements WorkflowController
       // TODO add
       this.config = config;
       this.transformers = transformers;
+      this.inputKey = config.getInputKey();
       
       taskExector = Executors.newCachedThreadPool();
       workflowExectorService = Executors.newCachedThreadPool();
@@ -128,7 +130,7 @@ public class WorkflowControllerImpl implements WorkflowController
          {
             // FIXME check to ensure this hasn't been closed
             
-            WorkflowExecutor workflow = new WorkflowExecutor(exec::execute, transformers);
+            WorkflowExecutor workflow = new WorkflowExecutor(exec.inputKey, exec::execute, transformers);
             workflow.process(sourceData, collector);
          }
       });
@@ -170,8 +172,9 @@ public class WorkflowControllerImpl implements WorkflowController
 
       private Set<ConfiguredTransformer> transformers;
 
-      public WorkflowExecutor(TaskExecutionService exec, Set<ConfiguredTransformer> transformers)
+      public WorkflowExecutor(DataValueKey inputKey, TaskExecutionService exec, Set<ConfiguredTransformer> transformers)
       {
+         this.inputKey = inputKey;
          this.id = UUID.randomUUID();
          this.context = new ExecutionContext();
          
@@ -194,7 +197,7 @@ public class WorkflowControllerImpl implements WorkflowController
       void process(Object data, ResultsCollector collector)
       {
          // TODO stitch results collector to data output handlers
-         context.put(null, data);
+         context.put(inputKey, data);
       }
    }
    
