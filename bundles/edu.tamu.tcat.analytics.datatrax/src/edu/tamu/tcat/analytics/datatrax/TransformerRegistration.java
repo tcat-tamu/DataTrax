@@ -36,6 +36,13 @@ public interface TransformerRegistration
    Set<DataInputPin> getDeclaredInputs();
    
    /**
+    * @param label The name of the input pin to retrieve.
+    * @return The declared input pin
+    * @throws IllegalArgumentException If no pin is declared with this label.
+    */
+   DataInputPin getDeclaredInput(String label) throws IllegalArgumentException;
+   
+   /**
     * @return The Java type of objects that will be generated as output by the registered 
     *    {@link Transformer}. 
     */

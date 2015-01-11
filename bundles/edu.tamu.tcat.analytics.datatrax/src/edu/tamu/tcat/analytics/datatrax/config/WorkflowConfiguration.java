@@ -3,6 +3,8 @@ package edu.tamu.tcat.analytics.datatrax.config;
 import java.util.Collection;
 import java.util.UUID;
 
+import edu.tamu.tcat.analytics.datatrax.DataValueKey;
+
 public interface WorkflowConfiguration
 {
    /**
@@ -26,8 +28,14 @@ public interface WorkflowConfiguration
    Class<?> getSourceType(); // TODO add support for multiple input types
 
    /**
+    * @return The key for the initial input data object.
+    */
+   DataValueKey getInputKey();
+   
+   /**
     * @return The collection of transformers that have been configured for use in this workflow.
     */
    Collection<TransformerConfiguration> getTransformers();
+
 
 }

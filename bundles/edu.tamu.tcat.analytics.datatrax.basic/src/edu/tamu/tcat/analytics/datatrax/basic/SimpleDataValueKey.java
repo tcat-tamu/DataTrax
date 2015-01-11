@@ -21,7 +21,7 @@ public class SimpleDataValueKey implements DataValueKey
    }
    
    @Override
-   public UUID getTransformerId()
+   public UUID getSourceId()
    {
       return sourceId;
    }
@@ -50,6 +50,6 @@ public class SimpleDataValueKey implements DataValueKey
          return false;
       
       DataValueKey key = DataValueKey.class.cast(obj);
-      return type.equals(key.getType()) && sourceId.equals(key.getTransformerId());
+      return type.equals(key.getType()) && sourceId.equals(key.getSourceId());
    }
 }

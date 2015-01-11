@@ -161,6 +161,12 @@ public class ExecutionContext
       // TODO find all autoclosable items and close them
    }
    
+   /**
+    *  @deprecated To be replaced once {@link ExecutionContext#registerListener(DataValueListener)}
+    *       is no longer used. 
+    *
+    */
+   @Deprecated
    public static interface DataValueListener 
    {
       /**

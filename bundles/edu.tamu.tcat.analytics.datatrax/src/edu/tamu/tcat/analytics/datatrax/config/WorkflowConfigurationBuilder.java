@@ -3,6 +3,7 @@ package edu.tamu.tcat.analytics.datatrax.config;
 import java.util.Set;
 import java.util.UUID;
 
+import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.ResultsCollector;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 
@@ -35,6 +36,12 @@ public interface WorkflowConfigurationBuilder
     * @param cls The Java type for input values.
     */
    void setInputType(Class<?> cls);
+
+   /**
+    * @return The {@link DataValueKey} that will be associated with input data instances 
+    *    supplied to the workflow.
+    */
+   DataValueKey getInputKey();
 
    /**
     * @return The UUIDs of transformers that have been defined for this workflow.
@@ -116,6 +123,7 @@ public interface WorkflowConfigurationBuilder
     *       subsequent updates to the builder do not impact the returned instance.
     */
    WorkflowConfiguration build();
+
 
    
 }

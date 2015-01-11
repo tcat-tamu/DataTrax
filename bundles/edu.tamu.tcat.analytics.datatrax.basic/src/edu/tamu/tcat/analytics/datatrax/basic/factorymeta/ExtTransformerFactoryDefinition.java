@@ -76,6 +76,19 @@ public class ExtTransformerFactoryDefinition implements TransformerRegistration
    }
 
    @Override
+   public DataInputPin getDeclaredInput(String name) 
+   {
+      // TODO we could use a map.
+      for (DataInputPin pin : inputPins)
+      {
+         if (pin.label.equals(name))
+            return pin;
+      }
+      
+      throw new IllegalArgumentException("Undefined input pin [" + name + "]");
+   }
+   
+   @Override
    public Class<?> getDeclaredOutputType()
    {
       return outputType;

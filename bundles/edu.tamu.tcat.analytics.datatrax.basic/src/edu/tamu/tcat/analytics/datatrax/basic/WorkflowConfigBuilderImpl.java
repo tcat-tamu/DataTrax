@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
@@ -26,7 +27,7 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
 {
    private final ExtPointTranformerFactoryRegistry registry;
 
-   private UUID id;
+   private UUID id = UUID.randomUUID();
    private String title;
    private String description;
    private Class<?> type;
@@ -38,7 +39,6 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
    public WorkflowConfigBuilderImpl(ExtPointTranformerFactoryRegistry reg)
    {
       this.registry = reg;
-//      this.cfg = new WorkflowConfiguration();
    }
    
    public static WorkflowConfigBuilderImpl create(ExtPointTranformerFactoryRegistry reg, WorkflowConfiguration config) throws WorkflowConfigurationException 
@@ -107,6 +107,14 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       this.type = cls;
    }
    
+   @Override
+   public DataValueKey getInputKey() 
+   {
+      Objects.requireNonNull(this.type, "Cannot construct input DataValueKey. Input type has not be specified.");
+      
+      return new SimpleDataValueKey(this.id, this.type);
+   }
+  
    @Override
    public Set<UUID> listTransformers()
    {
@@ -212,6 +220,12 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       public UUID getId()
       {
          return id;
+      }
+
+      @Override
+      public DataValueKey getInputKey()
+      {
+         return new SimpleDataValueKey(id, type);
       }
 
       @Override

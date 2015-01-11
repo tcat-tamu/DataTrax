@@ -4,9 +4,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.xml.transform.TransformerConfigurationException;
-
+import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
+import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistry;
 import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
@@ -57,8 +57,7 @@ public class SimpleTransformerConfig implements TransformerConfiguration, Transf
    @Override
    public Set<String> getDefinedParameters()
    {
-      // TODO Auto-generated method stub
-      return null;
+      return data.params.keySet();
    }
 
    @Override
@@ -138,16 +137,16 @@ public class SimpleTransformerConfig implements TransformerConfiguration, Transf
       data.params.put(param, val);
    }
    
-   private void validateDataSource(DataInputPin pin, TransformerConfiguration source) throws TransformerConfigurationException
+   private void validateDataSource(DataInputPin pin, DataValueKey source) throws TransformerConfigurationException
    {
       Class<?> required = pin.type;
-      Class<?> provided = source.getOutputType();
+      Class<?> provided = source.getType();
       
       if (!required.isAssignableFrom(provided))
       {
-         TransformerRegistration reg = source.getRegistration();
+//         TransformerRegistration reg = source.getRegistration();
          throw new TransformerConfigurationException("Incompatible data source. "
-               + "The output data for transformer [" + reg.getTitle() + "] "
+               + "The supplied data source [" + source + "] "
                + "does not match the input pin [" + pin.label + "]. "
                + "Required [" + required + "]. Provided [" + provided + "]");
       }
@@ -156,9 +155,27 @@ public class SimpleTransformerConfig implements TransformerConfiguration, Transf
    @Override
    public void setDataSource(DataInputPin pin, TransformerConfiguration source) throws TransformerConfigurationException
    {
-      validateDataSource(pin, source);
+      Class<?> required = pin.type;
+      Class<?> provided = source.getOutputType();
+      
+      if (!required.isAssignableFrom(provided))
+      {
+//         TransformerRegistration reg = source.getRegistration();
+         throw new TransformerConfigurationException("Incompatible data source. "
+               + "The supplied data source [" + source.getId() + "] "
+               + "does not match the input pin [" + pin.label + "]. "
+               + "Required [" + required + "]. Provided [" + provided + "]");
+      }
       
       data.inputs.put(pin.label, source.getId());
+   }
+   
+   @Override
+   public void setDataSource(DataInputPin pin, DataValueKey source) throws TransformerConfigurationException
+   {
+      validateDataSource(pin, source);
+      
+      data.inputs.put(pin.label, source.getSourceId());
    }
 
    @Override
