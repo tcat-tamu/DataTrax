@@ -5,13 +5,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerContext;
 import edu.tamu.tcat.analytics.datatrax.basic.ExecutionContext.DataAvailableEvent;
-import edu.tamu.tcat.analytics.datatrax.basic.ExecutionContext.DataValueListener;
 import edu.tamu.tcat.analytics.datatrax.basic.WorkflowControllerImpl.TaskExecutionService;
 import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
@@ -30,19 +32,26 @@ import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
  * {@code TransformerController} for each configured {@code Transformer} and 
  * registers them as listeners on the {@code ExecutionContext}.
  */
-public class TransformerController implements DataValueListener
+public class TransformerController 
 {
-   private AtomicInteger ct;
+   // NOTE: Lifecycle events to notify on: 
+   //          activate, dataAvailable, beforeExecution, completion, error
+   
+   private static final Logger logger = Logger.getLogger(TransformerController.class.getName());
    
    private DataInputMap inputs = new DataInputMap();
 
    private final UUID id;
+   
    private final Transformer transformer;
    private final TaskExecutionService exec;
    private final ExecutionContext context;
 
    private final SimpleDataValueKey resultKey;
    private AutoCloseable listenerRegistration;
+
+   private final AtomicBoolean canceled = new AtomicBoolean(false);
+   private final CountDownLatch inputsLatch;
 
    public TransformerController(Transformer transformer, TransformerConfiguration cfg, TaskExecutionService exec, ExecutionContext context)
    {
@@ -60,7 +69,15 @@ public class TransformerController implements DataValueListener
       }
       
       resultKey = new SimpleDataValueKey(cfg.getId(), cfg.getOutputType());
-      ct = new AtomicInteger(inputs.size());
+      inputsLatch = new CountDownLatch(inputs.size());
+   }
+   
+   /**
+    * @return The unique identifier for this transformer controller.
+    */
+   public UUID getId()
+   {
+      return id;
    }
    
    // HACK: need a better way to do this - highly coupled. Better to listen to this transformer
@@ -70,18 +87,23 @@ public class TransformerController implements DataValueListener
       this.listenerRegistration = listenerRegistration;
    }
 
-   @Override
+   /**
+    * @return The input keys for the required inputs to this transformer.
+    */
    public Set<DataValueKey> getKeys()
    {
       return inputs.labels.keySet();
    }
    
-   @Override
+   /**
+    * Called when new input data becomes available.
+    * 
+    * @param e An event with the data that has become available.
+    */
    public void dataAvailable(DataAvailableEvent e)
    {
       DataValueKey key = e.getKey();
       Object value = e.getValue();
-      
       
       if (!inputs.isDefined(key))
          return;
@@ -91,44 +113,68 @@ public class TransformerController implements DataValueListener
       
       inputs.setValue(key, value);
       
-      if (ct.decrementAndGet() == 0)
-      {
-         execute();
-      }
+      inputsLatch.countDown();
    }
-   
-   public void cancel()
+  
+   /**
+    * Activates the controller. This will cause the associated {@link Transformer} to be 
+    * executed once all configured input data is available. 
+    */
+   public void activate()
    {
       try
       {
-         if (this.listenerRegistration != null)
-            this.listenerRegistration.close();
-      }
-      catch (Exception e)
-      {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
-      throw new UnsupportedOperationException();
-   }
-
-   private void execute()
-   {
-      try
-      {
-         if (this.listenerRegistration != null)
-            this.listenerRegistration.close();        // remove listener reg. No longer needed.
+         inputsLatch.await();    // TODO need to set a timeout
+         stopListening();
+         
+         if (canceled.get())
+            return;
          
          TransformerExecutionTask task = new TransformerExecutionTask();
          exec.execute(task);
       }
       catch (Exception e)
       {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+         logger.log(Level.SEVERE, "Transformer execution failed for [" + transformer + "]", e);
       }     
    }
    
+   private void handleError(Exception ex)
+   {
+      logger.log(Level.SEVERE, "Transformer execution failed for [" + transformer + "]", ex);
+      // TODO fire notification
+   }
+
+   public void cancel()
+   {
+      stopListening();
+
+      // stop blocking on latch
+      canceled.set(true);
+      while (inputsLatch.getCount() > 0)
+      {
+         inputsLatch.countDown();
+      }
+      
+      // TODO notify cancellation
+   }
+
+   /**
+    * Remove all data input listeners
+    */
+   private void stopListening() 
+   {
+      try 
+      {
+      if (this.listenerRegistration != null)
+         this.listenerRegistration.close();
+      }
+      catch (Exception ex)
+      {
+         logger.log(Level.WARNING, "Failed to unregister data input listeners", ex);
+      }
+   }
+
    private class TransformerExecutionTask implements Runnable
    {
       public TransformerExecutionTask()
@@ -140,6 +186,9 @@ public class TransformerController implements DataValueListener
       {
          try 
          {
+            if (canceled.get())
+               return;
+            
             // TODO notify about to execute
             Object result = transformer.create(inputs);
             // TODO ensure type safety
@@ -148,17 +197,16 @@ public class TransformerController implements DataValueListener
          } 
          catch (Exception ex)
          {
-            // FIXME add logging
-            ex.printStackTrace();
+            handleError(ex);
          }
       }
    }
    
    /**
-    * A convenience data structure that maps input data keys and data values to the 
-    * corresponding input pin labels on the transformer. This is used to collect data objects 
-    * as they are made available via the {@link ExecutionContext} and in turn supply them to 
-    * a transformer via the {@link TransformerContext} API. 
+    * Maps input data keys and data values to the corresponding input pin labels on the 
+    * transformer. This is used to collect data objects as they are made available via the 
+    * {@link ExecutionContext} and in turn supply them to a transformer via the 
+    * {@link TransformerContext} API. 
     */
    private static class DataInputMap implements TransformerContext
    {

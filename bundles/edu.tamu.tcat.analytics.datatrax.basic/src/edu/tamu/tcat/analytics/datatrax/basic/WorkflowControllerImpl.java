@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.ResultsCollector;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
@@ -19,8 +20,38 @@ import edu.tamu.tcat.analytics.datatrax.WorkflowObserver;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 
+/**
+ * Responsible for managing the flow of data through a network of {@link Transformer}s and 
+ * supplying the declared outputs of the workflow to a {@link ResultsCollector}. The 
+ * {@link WorkflowController} is the  primary unit for DataTrax clients to interact with in 
+ * order to process a data set.
+ * 
+ * The Client should load a {@link WorkflowConfiguration} from an appropriate source and obtain 
+ * a {@code WorkflowController} (see below for more details on how to achieve this)
+ * 
+ * The {@code WorkflowController} is responsible for reading a {@code WorkflowConfiguration}, 
+ * instantiating and configuring {@code Transformer} instances and for creating and maintaining 
+ * the {@link ExecutorService} instances to be used to execute both overall workflow executions 
+ * and individual TransformerTaskss. The {@link WorkflowController} is the main point of entry 
+ * for applications to supply data objects to be transformed. For each supplied data-object, 
+ * the {@link WorkflowController} will instantiate a {@link WorkflowExecutor} to manage the 
+ * process of moving the source data through the transformation workflow defined by the 
+ * {@link WorkflowConfiguration}.
+ * 
+ *  Note that a workflow will instantiate and configure a single {@link Transformer} instance 
+ *  for each declared transformer. The {@link WorkflowExecutor} will then create 
+ *  TransformerExecutionController instances that are used to control these 
+ *  transformers as the data sources they require becomes available.
+ *  
+ *  The {@link WorkflowController} will provide hooks for clients to receive notifications 
+ *  about the execution of individual Transformers in order to support auditing, performance 
+ *  monitoring and other features that need to receive detailed notification of the 
+ *  in-progress operation of the data flow.
+ */
 public class WorkflowControllerImpl implements WorkflowController
 {
+   // TODO ensure that this implementation satisifies the above description
+   
    // executor for tasks submitted by individual workflows
    private ExecutorService taskExector;
    
@@ -30,7 +61,7 @@ public class WorkflowControllerImpl implements WorkflowController
    private final WorkflowConfiguration config;
    private final Set<ConfiguredTransformer> transformers;
 
-   public WorkflowControllerImpl(WorkflowConfiguration config, Set<ConfiguredTransformer> transformers)
+   private WorkflowControllerImpl(WorkflowConfiguration config, Set<ConfiguredTransformer> transformers)
    {
       // TODO add
       this.config = config;
@@ -50,7 +81,7 @@ public class WorkflowControllerImpl implements WorkflowController
       {
          TransformerRegistration registration = cfg.getRegistration();
          Transformer transformer = registration.instantiate();
-         transformer.configure(getParams(cfg));
+         transformer.configure(getParams(cfg));                         // TODO create a parameter bag or something similar?
          
          transformers.add(new ConfiguredTransformer(cfg, transformer));
       }
@@ -58,18 +89,6 @@ public class WorkflowControllerImpl implements WorkflowController
       return new WorkflowControllerImpl(config, transformers);
    }
    
-   public static class ConfiguredTransformer
-   {
-      public final TransformerConfiguration cfg;
-      public final Transformer transformer;
-      
-      public ConfiguredTransformer(TransformerConfiguration cfg, Transformer transformer)
-      {
-         this.cfg = cfg;
-         this.transformer = transformer;
-      }
-   }
-
    private static Map<String, Object> getParams(TransformerConfiguration cfg)
    {
       Map<String, Object> params = new HashMap<>();
@@ -122,6 +141,19 @@ public class WorkflowControllerImpl implements WorkflowController
       return null;
    }
    
+   public static class ConfiguredTransformer
+   {
+      public final TransformerConfiguration cfg;
+      public final Transformer transformer;
+      
+      public ConfiguredTransformer(TransformerConfiguration cfg, Transformer transformer)
+      {
+         this.cfg = cfg;
+         this.transformer = transformer;
+      }
+   }
+
+
    /**
     * Responsible for processing a single data instance through the workflow that has been 
     * instantiated by the {@link WorkflowControllerImpl} and for exporting the final data results 
@@ -132,6 +164,7 @@ public class WorkflowControllerImpl implements WorkflowController
    private static class WorkflowExecutor
    {
       private final UUID id;
+      private final DataValueKey inputKey;
       private final ExecutionContext context;
       private final Collection<TransformerController> controllers;
 
@@ -149,7 +182,9 @@ public class WorkflowControllerImpl implements WorkflowController
             Transformer transformer = cfgTransformer.transformer;
             
             TransformerController controller = new TransformerController(transformer, cfg, exec, context);
-            AutoCloseable registration = context.registerListener(controller);
+            controller.activate();
+            
+            AutoCloseable registration = context.registerListener(controller.getKeys(), controller::dataAvailable);
             controller.setListenerRegistration(registration);
             
             controllers.add(controller);
