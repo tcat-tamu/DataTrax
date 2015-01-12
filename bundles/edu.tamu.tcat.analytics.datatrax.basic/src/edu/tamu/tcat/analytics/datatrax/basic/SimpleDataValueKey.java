@@ -40,7 +40,7 @@ public class SimpleDataValueKey implements DataValueKey
       result = 37 * result + type.hashCode();
       result = 37 * result + sourceId.hashCode();
       
-      return super.hashCode();
+      return result;
    }
    
    @Override
@@ -51,5 +51,11 @@ public class SimpleDataValueKey implements DataValueKey
       
       DataValueKey key = DataValueKey.class.cast(obj);
       return type.equals(key.getType()) && sourceId.equals(key.getSourceId());
+   }
+   
+   @Override
+   public String toString()
+   {
+      return "DataValueKey: " + this.type.getName() + " (" + this.sourceId +")";
    }
 }
