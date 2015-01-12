@@ -195,7 +195,15 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
          transformers.add(editor.getConfiguration());
       }
       
-      return new WorkflowConfigImpl(id, title, description, type, transformers);
+      Set<DataValueKey> outputKeys = new HashSet<>();
+      for (UUID outputId : this.outputs)
+      {
+         SimpleTransformerConfig config = this.transformerEditors.get(outputId);
+         DataValueKey key = new SimpleDataValueKey(outputId, config.getOutputType());
+         outputKeys.add(key);
+      }
+      
+      return new WorkflowConfigImpl(id, title, description, type, transformers, outputKeys);
    }
    
    private static class WorkflowConfigImpl implements WorkflowConfiguration
@@ -205,14 +213,17 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       private final String description;
       private final Class<?> type;
       private final Set<TransformerConfiguration> transformers;
+      private final Set<DataValueKey> outputs;
       
-      WorkflowConfigImpl(UUID id, String title, String description, Class<?> type, Set<TransformerConfiguration> transformers)
+      WorkflowConfigImpl(UUID id, String title, String description, Class<?> type, 
+            Set<TransformerConfiguration> transformers, Set<DataValueKey> outputs)
       {
          this.id = id;
          this.title = title;
          this.description = description;
          this.type = type;
          this.transformers = transformers;
+         this.outputs = outputs;
          
       }
 
@@ -228,6 +239,12 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
          return new SimpleDataValueKey(id, type);
       }
 
+      @Override
+      public Set<DataValueKey> getDeclaredOutputs()
+      {
+         return Collections.unmodifiableSet(outputs);
+      }
+      
       @Override
       public String getTitle()
       {
@@ -251,6 +268,7 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       {
          return Collections.unmodifiableCollection(transformers);
       }
+
    }
 
 }

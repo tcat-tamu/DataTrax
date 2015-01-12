@@ -1,9 +1,11 @@
 package edu.tamu.tcat.analytics.datatrax.config;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
+import edu.tamu.tcat.analytics.datatrax.ResultsCollector;
 
 public interface WorkflowConfiguration
 {
@@ -36,6 +38,12 @@ public interface WorkflowConfiguration
     * @return The collection of transformers that have been configured for use in this workflow.
     */
    Collection<TransformerConfiguration> getTransformers();
+
+   /**
+    * @return A set of {@link DataValueKey}s for the values that should be exported from
+    *       this workflow to a {@link ResultsCollector}.
+    */
+   Set<DataValueKey> getDeclaredOutputs();
 
 
 }
