@@ -1,5 +1,7 @@
 package edu.tamu.tcat.analytics.datatrax.basic;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -87,7 +89,11 @@ public class SimpleTransformerConfig implements TransformerConfiguration, Transf
    @Override
    public Set<DataInputPin> getDefinedInputs()
    {
-      throw new UnsupportedOperationException();
+      Set<DataInputPin> pins = new HashSet<>();
+      data.inputs.keySet().forEach(
+            name -> pins.add(this.registration.getDeclaredInput(name)));
+      
+      return Collections.unmodifiableSet(pins);
    }
 
    private boolean hasInputPin(DataInputPin pin)
