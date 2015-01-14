@@ -10,7 +10,7 @@ import edu.tamu.tcat.analytics.datatrax.Transformer;
  * Additionally, some data inputs may be optional, so a {@code DataInputPin} may have its 
  * required property set to false. 
  */
-public class DataInputPin
+public final class DataInputPin
 {
    /**
     * A label that identifies this input pin within the scope of the associated {@link Transformer}. 
@@ -36,4 +36,8 @@ public class DataInputPin
     * execution before the associated {@link Transformer} will be invoked. 
     */
    public boolean required = true;
+   
+   public String toString() {
+      return label + "[" + type.getName() + "]";
+   }
 }
