@@ -4,19 +4,26 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.ResultsCollector;
+import edu.tamu.tcat.analytics.datatrax.ResultsCollector.TranformationResult;
+import edu.tamu.tcat.analytics.datatrax.ResultsCollector.TransformationError;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.WorkflowController;
 import edu.tamu.tcat.analytics.datatrax.WorkflowObserver;
+import edu.tamu.tcat.analytics.datatrax.basic.ExecutionContext.DataAvailableEvent;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 
@@ -51,6 +58,8 @@ import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 public class WorkflowControllerImpl implements WorkflowController
 {
    // TODO ensure that this implementation satisifies the above description
+   private final static Logger logger = Logger.getLogger(WorkflowControllerImpl.class.getName());
+
    
    // executor for tasks submitted by individual workflows
    private ExecutorService taskExector;
@@ -118,20 +127,52 @@ public class WorkflowControllerImpl implements WorkflowController
       
    }
 
+   private void handleError(ResultsCollector collector, final Exception ex)
+   {
+      if (collector == null)
+         return;
+      
+      TransformationError err = new TransformationError() {
+
+         @Override
+         public Exception getException()
+         {
+            return ex;
+         }
+      };
+      
+      try 
+      {
+         collector.handleError(err);
+      } 
+      catch (Exception e)
+      {
+         e.addSuppressed(ex);
+         logger.log(Level.WARNING, "Error notifying result collector of workflow execution error.", e);
+      }
+   }
+   
    @Override
    public <X> void process(X sourceData, ResultsCollector collector)
    {
-      @SuppressWarnings("resource")    // temporary reference
-      final WorkflowControllerImpl exec = this;
+      Objects.requireNonNull(sourceData, "Null source data input");
+      
       workflowExectorService.submit(new Runnable()
       {
          @Override
          public void run()
          {
             // FIXME check to ensure this hasn't been closed
-            
-            WorkflowExecutor workflow = new WorkflowExecutor(exec.inputKey, exec::execute, transformers);
-            workflow.process(sourceData, collector);
+            try 
+            {
+               WorkflowExecutor workflow = createExecutor(); 
+               workflow.process(sourceData, collector);
+            }
+            catch (Exception ex)
+            {
+               logger.log(Level.SEVERE, "Failed to execute workflow.", ex);
+               handleError(collector, ex);
+            }
          }
       });
    }
@@ -143,6 +184,29 @@ public class WorkflowControllerImpl implements WorkflowController
       return null;
    }
    
+   private WorkflowExecutor createExecutor() {
+      ExecutionContext context = new ExecutionContext();
+      
+      Set<TransformerController> controllers = new HashSet<>();
+      transformers.forEach((cfgTransformer) -> 
+            controllers.add(buildTransformerController(context, cfgTransformer)));
+      
+      return new WorkflowExecutor(context, inputKey, controllers);
+   }
+
+   private TransformerController buildTransformerController(ExecutionContext context, ConfiguredTransformer cfgTransformer)
+   {
+      TransformerConfiguration cfg = cfgTransformer.cfg;
+      Transformer transformer = cfgTransformer.transformer;
+      
+      TransformerController controller = new TransformerController(transformer, cfg, this::execute, context);
+      
+      AutoCloseable registration = context.registerListener(controller.getKeys(), controller::dataAvailable);
+      controller.setListenerRegistration(registration);
+      
+      return controller;
+   }
+
    public static class ConfiguredTransformer
    {
       public final TransformerConfiguration cfg;
@@ -163,50 +227,113 @@ public class WorkflowControllerImpl implements WorkflowController
    The WorkflowExecutor is supplied with a Java ExecutorService by the WorkflowController to be used when executing TransformerTasks.
 
     */
-   private static class WorkflowExecutor
+   private class WorkflowExecutor
    {
       private final UUID id;
       private final DataValueKey inputKey;
       private final ExecutionContext context;
       private final Collection<TransformerController> controllers;
+      
+      
+      private Object inputData;
+      private ResultsCollector collector;
+      private CountDownLatch outputDataLatch;
 
-      private Set<ConfiguredTransformer> transformers;
-
-      public WorkflowExecutor(DataValueKey inputKey, TaskExecutionService exec, Set<ConfiguredTransformer> transformers)
+      private WorkflowExecutor(ExecutionContext context, DataValueKey inputKey, Set<TransformerController> controllers)
       {
-         this.inputKey = inputKey;
          this.id = UUID.randomUUID();
-         this.context = new ExecutionContext();
-         
-         this.controllers = new HashSet<>();
-         for (ConfiguredTransformer cfgTransformer : transformers)
-         {
-            TransformerConfiguration cfg = cfgTransformer.cfg;
-            Transformer transformer = cfgTransformer.transformer;
-            
-            TransformerController controller = new TransformerController(transformer, cfg, exec, context);
-            controller.activate();
-            
-            AutoCloseable registration = context.registerListener(controller.getKeys(), controller::dataAvailable);
-            controller.setListenerRegistration(registration);
-            
-            controllers.add(controller);
-         }
+         this.context = context;
+         this.inputKey = inputKey;
+         this.controllers = controllers;     // unneeded
       }
-
+      
       void process(Object data, ResultsCollector collector)
       {
-         // TODO stitch results collector to data output handlers
+         Objects.requireNonNull(collector, "Input data must not be null.");
+         Objects.requireNonNull(collector, "No results collector supplied.");
+         
+         this.inputData = data;
+         this.collector = collector;
+         
+         // register handlers for data to export
+         Set<DataValueKey> outputs = config.getDeclaredOutputs();
+         outputDataLatch = new CountDownLatch(outputs.size());
+         context.registerListener(outputs, this::onDataAvailable);
+         
+         // stitch together error handling and execution completion
+         
          context.put(inputKey, data);
+         
+         awaitCompletion();
+      }
+
+      private void awaitCompletion()
+      {
+         try 
+         {
+            outputDataLatch.await();       // TODO provide timeout, support cancellation
+            collector.finished();
+         }
+         catch (Exception ex)
+         {
+            // handle exceptions from the supplied collector.
+            logger.log(Level.WARNING, "Notification of results collector of workflow completion failed. ", ex);
+         }
+      }
+      
+      private void onDataAvailable(DataAvailableEvent evt)
+      {
+         DataValueKey key = evt.getKey();
+         TranformationResult result = new TransResultImpl(key, evt.getValue(), inputData);
+         try
+         {
+            collector.handleResult(result);
+         }
+         catch (Exception ex)
+         {
+            // handle exceptions from the supplied collector.
+            logger.log(Level.WARNING, "Notification of results collector of data available failed [" + key + "]. ", ex);
+         }
+         
+         outputDataLatch.countDown();
       }
    }
    
+   private final class TransResultImpl implements TranformationResult
+   {
+      private final DataValueKey key;
+      private final Object value;
+      private final Object src;
+      
+      TransResultImpl(DataValueKey key, Object value, Object src)
+      {
+         this.key = key;
+         this.value = value;
+         this.src = src;
+
+      }
+      @Override
+      public DataValueKey getKey()
+      {
+         return key;
+      }
+
+      @Override
+      public Object getValue()
+      {
+         return value;
+      }
+
+      @Override
+      public Object getSource()
+      {
+         return src;
+      }
+   }
    
    public static interface TaskExecutionService
    {
       void execute(Runnable task);
-   
    }
-
 
 }
