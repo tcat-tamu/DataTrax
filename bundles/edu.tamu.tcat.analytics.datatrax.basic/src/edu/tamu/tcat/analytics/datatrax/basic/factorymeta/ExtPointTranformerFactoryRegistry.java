@@ -15,18 +15,17 @@ import org.eclipse.core.runtime.IRegistryEventListener;
 import org.eclipse.core.runtime.Platform;
 
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistration;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactoryRegistry;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
+import edu.tamu.tcat.analytics.datatrax.TransformerRegistry;
 
 /**
  *  
  *
  */
-public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegistry
+public class ExtPointTranformerFactoryRegistry implements TransformerRegistry
 {
 
-   public static final String EXT_POINT_ID = "edu.tamu.tcat.analytics.datatrax.transformfactories";
+   public static final String EXT_POINT_ID = "edu.tamu.tcat.analytics.datatrax.transformer";
 
    private final ConcurrentMap<String, ExtTransformerFactoryDefinition> factoryDefinitions = new ConcurrentHashMap<>();
 
@@ -38,7 +37,7 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
 
    /**
     * Initializes this {@link ExtPointTranformerFactoryProvider}. This must be called during 
-    * initial configuration in order to load {@link TransformerFactory} plugins.
+    * initial configuration in order to load {@link Transformer} plugins.
     */
    public void activate()
    {
@@ -83,11 +82,11 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
    }
    
    @Override
-   public Collection<TransformerFactoryRegistration> getFactories()
+   public Collection<String> getRegistrations()
    {
-      return new ArrayList<TransformerFactoryRegistration>(factoryDefinitions.values());
+      return new ArrayList<String>(factoryDefinitions.keySet());
    }
-   
+
    @Override
    public boolean isRegistered(String id)
    {
@@ -96,7 +95,7 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
    }
    
    @Override
-   public ExtTransformerFactoryDefinition getFactory(String id) throws FactoryUnavailableException 
+   public ExtTransformerFactoryDefinition getRegistration(String id) throws FactoryUnavailableException 
    {
       ExtTransformerFactoryDefinition factory = factoryDefinitions.get(id);
       if (factory == null)
@@ -108,26 +107,26 @@ public class ExtPointTranformerFactoryRegistry implements TransformerFactoryRegi
    }
 
    @Override
-   public <X> Collection<TransformerFactoryRegistration> getCompatibleFactories(Class<X> sourceType)
+   public <X> Collection<String> getCompatibleRegistrations(Class<X> sourceType)
    {
-      Collection<TransformerFactoryRegistration> matches = new HashSet<>();
+      Collection<String> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
       {
          if (defn.canAccept(sourceType))
-            matches.add(defn);
+            matches.add(defn.getId());
       }
       
       return Collections.unmodifiableCollection(matches);
    }
 
    @Override
-   public <X> Collection<TransformerFactoryRegistration> getProducingFactories(Class<X> outputType)
+   public <X> Collection<String> getProducingRegistrations(Class<X> outputType)
    {
-      Collection<TransformerFactoryRegistration> matches = new HashSet<>();
+      Collection<String> matches = new HashSet<>();
       for (ExtTransformerFactoryDefinition defn : factoryDefinitions.values())
       {
          if (defn.canProduce(outputType))
-            matches.add(defn);
+            matches.add(defn.getId());
       }
       
       return Collections.unmodifiableCollection(matches);

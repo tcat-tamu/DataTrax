@@ -21,3 +21,5 @@ Bundle-Activator: edu.tamu.tcat.analytics.datatrax.tests.internal.Activator
 Bundle-Vendor: Texas A&M Engineering Experiment Station
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/factory_registry.xml
+Bundle-ClassPath: lib/jai_imageio.jar,
+ .

@@ -2,30 +2,20 @@ package edu.tamu.tcat.analytics.datatrax.tests;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
-import edu.tamu.tcat.analytics.datatrax.DataSink;
-import edu.tamu.tcat.analytics.datatrax.DataSource;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
-import edu.tamu.tcat.analytics.datatrax.TransformerFactory;
+import edu.tamu.tcat.analytics.datatrax.TransformerContext;
 
-public class MockTransformer implements TransformerFactory
+public class MockTransformer implements Transformer
 {
+   private static final String NAME = "name";
+   private static final String SALUTATION = "salutation";
 
    public MockTransformer()
    {
       // TODO Auto-generated constructor stub
-   }
-
-   @Override
-   public Class<String> getSourceType()
-   {
-      return String.class;
-   }
-
-   @Override
-   public Class<String> getOutputType()
-   {
-      return String.class;
    }
 
    @Override
@@ -40,23 +30,22 @@ public class MockTransformer implements TransformerFactory
    }
 
    @Override
-   public Runnable create(final DataSource<?> source, final DataSink<?> sink)
+   public Callable<?> create(TransformerContext ctx)
    {
-      return new Runnable()
+      final String prefix = (String)ctx.getValue(SALUTATION);
+      final String name = (String)ctx.getValue(NAME);
+      return new Callable<String>()
       {
          
-         @SuppressWarnings({"unchecked", "rawtypes"})
          @Override
-         public void run()
+         public String call()
          {
-            String s = (String)source.get();
-            if (s == null)
-               throw new IllegalStateException("Invalid string. Null value.");
-            
-            ((DataSink)sink).accept("Hello " + s);
+            if (prefix != null)
+               return prefix + " " + name;
+            else 
+               return "Hello " + name;
             
          }
       };
    }
-
 }
