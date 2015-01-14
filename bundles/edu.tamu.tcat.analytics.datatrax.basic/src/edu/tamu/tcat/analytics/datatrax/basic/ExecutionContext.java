@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
+import edu.tamu.tcat.analytics.datatrax.ResultsCollector;
 import edu.tamu.tcat.analytics.datatrax.WorkflowController;
 
 /**
@@ -72,7 +73,7 @@ public class ExecutionContext
          for (DataValueKey key : keys)
          {
             List<Consumer<DataAvailableEvent>> list = listeners.get(key);
-            if (list != null && !list.contains(ears))
+            if (list != null && list.contains(ears))
             {
                list.remove(ears);
             }
@@ -119,6 +120,9 @@ public class ExecutionContext
 
    private void notifyDataAvailable(DataValueKey key, Object value)
    {
+      if (!listeners.containsKey(key))
+         return;
+      
       DataAvailableEvent e = new DataAvailableEvent(key, value);
       List<Consumer<DataAvailableEvent>> ears = listeners.get(key);
       for (Consumer<DataAvailableEvent> ear : ears)
