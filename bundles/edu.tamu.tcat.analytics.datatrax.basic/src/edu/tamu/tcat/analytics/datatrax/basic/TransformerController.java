@@ -4,9 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,7 +52,7 @@ public class TransformerController
    private AutoCloseable listenerRegistration;
 
    private final AtomicBoolean canceled = new AtomicBoolean(false);
-   private final CountDownLatch inputsLatch;
+   private final AtomicInteger ct;
 
    public TransformerController(Transformer transformer, TransformerConfiguration cfg, TaskExecutionService exec, ExecutionContext context)
    {
@@ -63,13 +64,19 @@ public class TransformerController
       for (DataInputPin pin : cfg.getDefinedInputs())
       {
          UUID dataSource = cfg.getDataSource(pin);
-         SimpleDataValueKey key = new SimpleDataValueKey(dataSource, pin.type);
+         if (dataSource == null) {
+            if (pin.required)
+               throw new NullPointerException("Undefined data input pin [" + pin + "]");
+            
+            continue;
+         }
          
+         SimpleDataValueKey key = new SimpleDataValueKey(dataSource, pin.type);
          inputs.define(key, pin.label);
       }
       
       resultKey = new SimpleDataValueKey(cfg.getId(), cfg.getOutputType());
-      inputsLatch = new CountDownLatch(inputs.size());
+      ct = new AtomicInteger(inputs.size());
    }
    
    /**
@@ -113,23 +120,27 @@ public class TransformerController
       
       inputs.setValue(key, value);
       
-      inputsLatch.countDown();
+      synchronized (ct)
+      {
+         if (0 == ct.decrementAndGet())
+         {
+            stopListening();
+            execute();
+         }
+      }
    }
   
    /**
     * Activates the controller. This will cause the associated {@link Transformer} to be 
     * executed once all configured input data is available. 
     */
-   public void activate()
+   public void execute()
    {
+      if (canceled.get())
+         return;
+
       try
       {
-         inputsLatch.await();    // TODO need to set a timeout
-         stopListening();
-         
-         if (canceled.get())
-            return;
-         
          TransformerExecutionTask task = new TransformerExecutionTask();
          exec.execute(task);
       }
@@ -147,14 +158,8 @@ public class TransformerController
 
    public void cancel()
    {
-      stopListening();
-
-      // stop blocking on latch
       canceled.set(true);
-      while (inputsLatch.getCount() > 0)
-      {
-         inputsLatch.countDown();
-      }
+      stopListening();
       
       // TODO notify cancellation
    }
@@ -190,7 +195,9 @@ public class TransformerController
                return;
             
             // TODO notify about to execute
-            Object result = transformer.create(inputs);
+            Callable<?> task = transformer.create(inputs);
+            Object result = task.call();
+            
             // TODO ensure type safety
             // TODO notify execution complete
             context.put(resultKey, result);
