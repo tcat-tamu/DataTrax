@@ -62,7 +62,10 @@ public interface TransformerConfiguration
    Set<String> getDefinedParameters();
    
    /**
-    * @return The input pins that are defined for this the associated transformer.
+    * @return The input pins that are configured for this the associated transformer. Note that 
+    *       this will only return pins that have input values connected to them. To find all
+    *       input pins for the associated transformer, use the {@link TransformerRegistration}
+    *       return by {@link #getRegistration()}.
     */
    Set<DataInputPin> getDefinedInputs();
    
