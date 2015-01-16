@@ -12,7 +12,7 @@ import java.util.UUID;
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
-import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
+import edu.tamu.tcat.analytics.datatrax.TransformerRegistry;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfigEditor;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
@@ -25,7 +25,7 @@ import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
  */
 public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
 {
-   private final ExtPointTranformerFactoryRegistry registry;
+   private final TransformerRegistry registry;
 
    private UUID id = UUID.randomUUID();
    private String title;
@@ -36,12 +36,12 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
    private Set<UUID> outputs = new HashSet<>();
 
    
-   public WorkflowConfigBuilderImpl(ExtPointTranformerFactoryRegistry reg)
+   public WorkflowConfigBuilderImpl(TransformerRegistry reg)
    {
       this.registry = reg;
    }
    
-   public static WorkflowConfigBuilderImpl create(ExtPointTranformerFactoryRegistry reg, WorkflowConfiguration config) throws WorkflowConfigurationException 
+   public static WorkflowConfigBuilderImpl create(TransformerRegistry reg, WorkflowConfiguration config) throws WorkflowConfigurationException 
    {
       WorkflowConfigBuilderImpl impl = new WorkflowConfigBuilderImpl(reg);
       
@@ -57,7 +57,7 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       return impl;
    }
 
-   private static void appendEditor(ExtPointTranformerFactoryRegistry reg, TransformerConfiguration tCfg, WorkflowConfigBuilderImpl impl) throws WorkflowConfigurationException
+   private static void appendEditor(TransformerRegistry reg, TransformerConfiguration tCfg, WorkflowConfigBuilderImpl impl) throws WorkflowConfigurationException
    {
       try 
       {
@@ -77,7 +77,7 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       }
    }
 
-   public static Map<UUID, String> checkConfiguration(ExtPointTranformerFactoryRegistry reg, WorkflowConfiguration config)
+   public static Map<UUID, String> checkConfiguration(TransformerRegistry reg, WorkflowConfiguration config)
    {
       // TODO check the supplied configuration and determine if there are any configuration errors.
       
