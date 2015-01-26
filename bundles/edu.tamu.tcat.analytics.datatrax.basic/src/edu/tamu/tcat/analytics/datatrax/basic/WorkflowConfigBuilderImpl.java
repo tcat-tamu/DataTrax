@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
+import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistry;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfigEditor;
@@ -41,7 +42,20 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       this.registry = reg;
    }
    
-   public static WorkflowConfigBuilderImpl create(TransformerRegistry reg, WorkflowConfiguration config) throws WorkflowConfigurationException 
+   /**
+    * Creates a new workflow configuration builder using  the supplied {@link WorkflowConfiguration}
+    * as a starting point.
+    * 
+    * @param reg The registry to use to look up available {@link Transformer}s. 
+    * @param config The configuration instance to use as a starting point for the new builder.
+    *       The supplied configuration will not be modified.
+    * @return A new workflow builder.
+    * @throws WorkflowConfigurationException If a new builder could not be constructed. This 
+    *       is typically caused by an incompatibility between the supplied configuration and 
+    *       the provided tranformer registry.
+    */
+   public static WorkflowConfigBuilderImpl create(TransformerRegistry reg, WorkflowConfiguration config) 
+         throws WorkflowConfigurationException 
    {
       WorkflowConfigBuilderImpl impl = new WorkflowConfigBuilderImpl(reg);
       
@@ -124,9 +138,6 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
    @Override
    public TransformerConfigEditor createTransformer(TransformerRegistration reg) throws WorkflowConfigurationException
    {
-      if (!registry.isRegistered(reg.getId()))
-         throw new WorkflowConfigurationException("Invalid transformer registration. The transformer '" + reg.getTitle() + "[" + reg.getId() + "] is not currently registered.");
-      
       TransformerConfigData data = new TransformerConfigData();
       data.transformerId = UUID.randomUUID();
       data.registrationId = reg.getId();
@@ -139,7 +150,7 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       }
       catch (FactoryUnavailableException e)
       {
-         throw new WorkflowConfigurationException("Failed to create config editor:", e);
+         throw new WorkflowConfigurationException("Failed to create transformer: '" + reg.getTitle() + "[" + reg.getId() + "].", e);
       }
    }
 
@@ -236,6 +247,7 @@ public class WorkflowConfigBuilderImpl implements WorkflowConfigurationBuilder
       @Override
       public DataValueKey getInputKey()
       {
+         Objects.requireNonNull(type, "No input data type has been defined");
          return new SimpleDataValueKey(id, type);
       }
 

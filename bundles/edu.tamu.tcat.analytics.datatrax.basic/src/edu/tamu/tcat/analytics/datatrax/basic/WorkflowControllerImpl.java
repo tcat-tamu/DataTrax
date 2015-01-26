@@ -85,7 +85,7 @@ public class WorkflowControllerImpl implements WorkflowController
    public static WorkflowControllerImpl create(WorkflowConfiguration config) throws TransformerConfigurationException
    {
       // TODO probably need to tune these to prevent poor thread usage. Need to investigate work-stealing 
-      
+      // TODO need to supply better exception
       Set<ConfiguredTransformer> transformers = new HashSet<>();
       Collection<TransformerConfiguration> tConfigs = config.getTransformers();
       for (TransformerConfiguration cfg : tConfigs)

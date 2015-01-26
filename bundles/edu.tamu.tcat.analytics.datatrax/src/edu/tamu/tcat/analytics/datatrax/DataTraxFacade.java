@@ -5,10 +5,12 @@ import java.util.UUID;
 
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationBuilder;
+import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowDescription;
 
 /**
- * Service for managing {@link WorkflowConfiguration} instances and for
+ * Service for managing {@link WorkflowConfiguration} instances, for constructing 
+ * {@link WorkflowController}s, and for accessing the {@link TransformerRegistry}.
  *
  */
 public interface DataTraxFacade
@@ -29,8 +31,9 @@ public interface DataTraxFacade
     * 
     * @param config
     * @return
+    * @throws WorkflowConfigurationException 
     */
-   WorkflowConfigurationBuilder editConfiguration(WorkflowConfiguration config);
+   WorkflowConfigurationBuilder editConfiguration(WorkflowConfiguration config) throws WorkflowConfigurationException;
    
    /**
     * Retrieve the identified {@link WorkflowConfiguration}.
@@ -66,8 +69,9 @@ public interface DataTraxFacade
     *  
     * @param config
     * @return
+    * @throws WorkflowConfigurationException 
     */
-   WorkflowController createWorkflow(WorkflowConfiguration config);
+   WorkflowController createWorkflow(WorkflowConfiguration config) throws WorkflowConfigurationException;
    
    /**
     * @return The configured {@link TransformerRegistry}. This will be the registry that is used
