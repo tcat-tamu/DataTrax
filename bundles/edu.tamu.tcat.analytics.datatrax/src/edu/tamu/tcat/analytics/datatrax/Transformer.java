@@ -30,6 +30,7 @@ public interface Transformer
       return config.containsKey(key) && config.get(key) != null;
    }
    
+   @SuppressWarnings("unchecked") // for performance reasons
    public static <X> X getValue(Map<String, Object> config, String key, Class<X> type) throws TransformerConfigurationException
    {
       if (!hasValue(config, key))
@@ -37,7 +38,7 @@ public interface Transformer
       
       try 
       {
-         return type.cast(config.get(key));
+         return (X)config.get(key);
       }
       catch (ClassCastException cce)
       {
@@ -81,7 +82,7 @@ public interface Transformer
     * (for example, on configuration parameters) or other external data sources only if all
     * required invariants are stable over time.  
     * 
-    * @param ctx A data context object for use in retrieving any supplied source data.
+    * @param ctx A data context object for use in retrieving any supplied source data. 
     * @return A data processor that will be scheduled to run by the {@link WorkflowController}.
     */
    Callable<?> create(TransformerContext ctx);

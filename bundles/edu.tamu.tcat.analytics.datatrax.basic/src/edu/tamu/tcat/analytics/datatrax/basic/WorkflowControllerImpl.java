@@ -1,9 +1,7 @@
 package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -11,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,7 +72,6 @@ public class WorkflowControllerImpl implements WorkflowController
 
    private WorkflowControllerImpl(WorkflowConfiguration config, Set<ConfiguredTransformer> transformers)
    {
-      // TODO add
       this.config = config;
       this.transformers = transformers;
       this.inputKey = config.getInputKey();
@@ -91,24 +89,12 @@ public class WorkflowControllerImpl implements WorkflowController
       for (TransformerConfiguration cfg : tConfigs)
       {
          TransformerRegistration registration = cfg.getRegistration();
-         Transformer transformer = registration.instantiate();
-         transformer.configure(getParams(cfg));                         // TODO create a parameter bag or something similar?
+         Transformer transformer = registration.instantiate(cfg);
          
          transformers.add(new ConfiguredTransformer(cfg, transformer));
       }
       
       return new WorkflowControllerImpl(config, transformers);
-   }
-   
-   private static Map<String, Object> getParams(TransformerConfiguration cfg)
-   {
-      Map<String, Object> params = new HashMap<>();
-      for (String key : cfg.getDefinedParameters())
-      {
-         params.put(key, cfg.getParameter(key));
-      }
-      
-      return params;
    }
    
    private void execute(Runnable task)
@@ -233,7 +219,6 @@ public class WorkflowControllerImpl implements WorkflowController
       private final DataValueKey inputKey;
       private final ExecutionContext context;
       private final Collection<TransformerController> controllers;
-      
       
       private Object inputData;
       private ResultsCollector collector;

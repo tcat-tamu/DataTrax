@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
+import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 
 /**
  * Provides a structure for registering configurable algorithms ({@link Transformer}s) that 
@@ -94,6 +95,6 @@ public interface TransformerRegistration
     *    application's (for example, if a class provided by an OSGi bundle is no longer 
     *    available to the OSGi class loader).  
     */
-   Transformer instantiate() throws FactoryConfigurationException;
+   Transformer instantiate(TransformerConfiguration cfg) throws FactoryConfigurationException;
 
 }
