@@ -18,7 +18,6 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.imageio.ImageIO;
 
@@ -84,8 +83,11 @@ public class WorkflowTests
       ExtTransformerFactoryDefinition sauvolaReg = registry.getRegistration(FastSauvolaTransformer.EXTENSION_ID);
       ExtTransformerFactoryDefinition ccReg = registry.getRegistration(CCAnalyzer.EXTENSION_ID);
 
+      @SuppressWarnings("unused")
       TransformerConfigEditor integralImAdapterEd = builder.createTransformer(buffImageReg);
+      @SuppressWarnings("unused")
       TransformerConfigEditor thresholderEd = builder.createTransformer(sauvolaReg);
+      @SuppressWarnings("unused")
       TransformerConfigEditor ccEd = builder.createTransformer(ccReg);
 //      
 //      thresholderEd.setDataSource(pin, integralImAdapterEd.getConfiguration());
@@ -192,42 +194,13 @@ public class WorkflowTests
       Path imagePath = dataDir.resolve("00000009.jp2");
       assertTrue("Source image does not exist. " + imagePath.toString(), Files.exists(imagePath));
       
-      BufferedImage image = ImageIO.read(imagePath.toFile());
-      
       CountDownLatch latch = new CountDownLatch(2);
-      List<Exception> errors = new CopyOnWriteArrayList<>();
       Map<DataValueKey, Object> outputs = new HashMap<>();
-      AtomicReference<BufferedImage> colorizedImage = new AtomicReference<>();
       
+      BufferedImage image = ImageIO.read(imagePath.toFile());
       long start = System.currentTimeMillis();
-      workflow.process(image, new ResultsCollector()
-      {
-         
-         @Override
-         public <X> void handleResult(TranformationResult result)
-         {
-            outputs.put(result.getKey(), result.getValue());
-            if (result.getValue() instanceof BufferedImage)
-               colorizedImage.set((BufferedImage)result.getValue());
-            
-            latch.countDown();
-         }
-         
-         @Override
-         public void handleError(TransformationError error)
-         {
-            Exception ex = error.getException();
-            errors.add(ex);
-            ex.printStackTrace();
-         }
-         
-         @Override
-         public void finished()
-         {
-            // TODO alternatively, we could just wait until processing is done
-            System.out.println("Done.");
-         }
-      });
+      ResultsCollectorImpl collector = new ResultsCollectorImpl(outputs, latch);
+      workflow.process(() -> image, collector);
       
       if (latch.await(2, TimeUnit.HOURS))
       {
@@ -235,7 +208,7 @@ public class WorkflowTests
          
          Path output = dataDir.resolve("outputs").resolve("00000009.jpg");
          Files.createDirectories(output);
-         ImageIO.write(colorizedImage.get(), "jpg", output.toFile());
+         ImageIO.write(collector.colorizedImage, "jpg", output.toFile());
       }
       else 
       {
@@ -325,6 +298,46 @@ public class WorkflowTests
    public void testWorkflowConfigSerialization()
    {
       
+   }
+
+   private static final class ResultsCollectorImpl implements ResultsCollector<BufferedImage>
+   {
+      private final Map<DataValueKey, Object> outputs;
+      private final CountDownLatch latch;
+      private final List<Exception> errors;
+      private BufferedImage colorizedImage;
+
+      public ResultsCollectorImpl(Map<DataValueKey, Object> outputs, CountDownLatch latch)
+      {
+         this.outputs = outputs;
+         this.latch = latch;
+         this.errors = new CopyOnWriteArrayList<>();
+      }
+      
+      @Override
+      public void handleResult(TranformationResult<BufferedImage> result)
+      {
+         outputs.put(result.getKey(), result.getValue());
+         if (result.getValue() instanceof BufferedImage)
+            colorizedImage = (BufferedImage)result.getValue();
+         
+         latch.countDown();
+      }
+   
+      @Override
+      public void handleError(TransformationError error)
+      {
+         Exception ex = error.getException();
+         errors.add(ex);
+         ex.printStackTrace();
+      }
+   
+      @Override
+      public void finished()
+      {
+         // TODO alternatively, we could just wait until processing is done
+         System.out.println("Done.");
+      }
    }
    
 

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
@@ -14,6 +15,10 @@ import edu.tamu.tcat.analytics.datatrax.FactoryUnavailableException;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistry;
+import edu.tamu.tcat.analytics.datatrax.basic.SimpleTransformerConfig;
+import edu.tamu.tcat.analytics.datatrax.basic.TransformerConfigData;
+import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
+import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.tests.internal.Activator;
 import edu.tamu.tcat.osgi.services.util.ServiceHelper;
 
@@ -42,6 +47,25 @@ public class ExtTranformerRegistryTests
       }
    }
    
+   public static SimpleTransformerConfig buildConfig(TransformerRegistration registration) throws FactoryUnavailableException
+   {
+      TransformerConfigData data = new TransformerConfigData();
+      data.transformerId = UUID.randomUUID();
+      data.registrationId = registration.getId();
+      data.inputs = new HashMap<>();
+      data.outputType = String.class;
+      data.params = new HashMap<>();
+      
+      // ensure that all pins have been set
+      for (DataInputPin pin : registration.getDeclaredInputs())
+      {
+         if (!data.inputs.containsKey(pin.label))
+            data.inputs.put(pin.label, null);
+      }
+      
+      return new SimpleTransformerConfig(data, registration);
+   }
+   
    @Test
    public void testInvocation() throws Exception
    {
@@ -51,9 +75,11 @@ public class ExtTranformerRegistryTests
          TransformerRegistry registry = helper.waitForService(TransformerRegistry.class, 10_000);
          TransformerRegistration reg = registry.getRegistration("edu.tamu.tcat.analytics.datatrax.tests.helloworld");
          assertNotNull("Failed to retrieve hello world factory.", reg);
+
+         TransformerConfiguration cfg = buildConfig(reg);
+         Transformer hello = reg.instantiate(cfg);
          
-         Transformer hello = reg.instantiate();
-         HashMap<String, String> params = new HashMap<>();
+         HashMap<String, Object> params = new HashMap<>();
          params.put("name", "Fred");
          Callable<?> task = hello.create((key) -> params.get(key));
          String msg = (String)task.call();
