@@ -2,6 +2,7 @@ package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -47,6 +48,9 @@ public class TransformerController
    private final Transformer transformer;
    private final TaskExecutionService exec;
    private final ExecutionContext context;
+   
+   /* The task to be run. Will be set to null after submission to executor */ 
+   private TransformerExecutionTask task = new TransformerExecutionTask();
 
    private final SimpleDataValueKey resultKey;
    private AutoCloseable listenerRegistration;
@@ -120,16 +124,13 @@ public class TransformerController
       
       inputs.setValue(key, value);
       
-      synchronized (ct)
+      if (0 == ct.decrementAndGet())
       {
-         if (0 == ct.decrementAndGet())
-         {
-            stopListening();
-            execute();
-         }
+         stopListening();
+         execute();
       }
    }
-  
+   
    /**
     * Activates the controller. This will cause the associated {@link Transformer} to be 
     * executed once all configured input data is available. 
@@ -139,10 +140,11 @@ public class TransformerController
       if (canceled.get())
          return;
 
+      Objects.requireNonNull(task, "Execution task has already been submitted.");
       try
       {
-         TransformerExecutionTask task = new TransformerExecutionTask();
          exec.execute(task);
+         task = null;
       }
       catch (Exception e)
       {
@@ -179,13 +181,10 @@ public class TransformerController
          logger.log(Level.WARNING, "Failed to unregister data input listeners", ex);
       }
    }
-
+   
+   // ensure that we do not ever make more than one
    private class TransformerExecutionTask implements Runnable
    {
-      public TransformerExecutionTask()
-      {
-      }
-      
       @Override
       public void run() 
       {
@@ -193,6 +192,9 @@ public class TransformerController
          {
             if (canceled.get())
                return;
+            
+            if (Thread.currentThread().isInterrupted())
+               throw new InterruptedException();
             
             // TODO notify about to execute
             Callable<?> task = transformer.create(inputs);
