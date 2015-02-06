@@ -12,7 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
-import edu.tamu.tcat.analytics.datatrax.ResultsCollector;
 import edu.tamu.tcat.analytics.datatrax.WorkflowController;
 
 /**
@@ -162,7 +161,24 @@ public class ExecutionContext
    
    public void close()
    {
-      // TODO find all autoclosable items and close them
+      synchronized (this)
+      {
+         for (DataValueKey key : values.keySet())
+         {
+            Object o = values.get(key);
+            if (o instanceof AutoCloseable)
+            {
+               try 
+               {
+                  ((AutoCloseable)o).close();
+               }
+               catch (Exception ex) 
+               {
+                  contextLogger.log(Level.WARNING, "Failed to close value for key [" + key + "]", ex);
+               }
+            }
+         }
+      }
    }
    
    /**
