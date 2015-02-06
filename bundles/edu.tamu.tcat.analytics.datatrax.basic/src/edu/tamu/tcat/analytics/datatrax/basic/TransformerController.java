@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
 import edu.tamu.tcat.analytics.datatrax.Transformer;
 import edu.tamu.tcat.analytics.datatrax.TransformerContext;
-import edu.tamu.tcat.analytics.datatrax.basic.ExecutionContext.DataAvailableEvent;
+import edu.tamu.tcat.analytics.datatrax.basic.WorkflowExecutionContext.DataAvailableEvent;
 import edu.tamu.tcat.analytics.datatrax.basic.WorkflowControllerImpl.TaskExecutionService;
 import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
@@ -26,7 +26,7 @@ import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
  * Once all data input values that have been stitched to input pins of the managed 
  * {@code Transformer} have been supplied, it will submit a {@link Runnable} to the 
  * {@link TaskExecutionService} for execution. Upon completion, it will provide the results
- * of the data transformation to the supplied {@link ExecutionContext}. 
+ * of the data transformation to the supplied {@link WorkflowExecutionContext}. 
  * 
  * <p>
  * The {@code TransformerController} is intended only for internal use by the DataTrax 
@@ -47,7 +47,7 @@ public class TransformerController
    
    private final Transformer transformer;
    private final TaskExecutionService exec;
-   private final ExecutionContext context;
+   private final WorkflowExecutionContext context;
    
    /* The task to be run. Will be set to null after submission to executor */ 
    private TransformerExecutionTask task = new TransformerExecutionTask();
@@ -58,7 +58,7 @@ public class TransformerController
    private final AtomicBoolean canceled = new AtomicBoolean(false);
    private final AtomicInteger ct;
 
-   public TransformerController(Transformer transformer, TransformerConfiguration cfg, TaskExecutionService exec, ExecutionContext context)
+   public TransformerController(Transformer transformer, TransformerConfiguration cfg, TaskExecutionService exec, WorkflowExecutionContext context)
    {
       this.id = UUID.randomUUID();
       this.transformer = transformer;
@@ -214,7 +214,7 @@ public class TransformerController
    /**
     * Maps input data keys and data values to the corresponding input pin labels on the 
     * transformer. This is used to collect data objects as they are made available via the 
-    * {@link ExecutionContext} and in turn supply them to a transformer via the 
+    * {@link WorkflowExecutionContext} and in turn supply them to a transformer via the 
     * {@link TransformerContext} API. 
     */
    private static class DataInputMap implements TransformerContext

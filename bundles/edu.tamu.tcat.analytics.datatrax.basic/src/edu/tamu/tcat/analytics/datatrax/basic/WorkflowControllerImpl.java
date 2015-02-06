@@ -22,7 +22,7 @@ import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.WorkflowController;
 import edu.tamu.tcat.analytics.datatrax.WorkflowObserver;
-import edu.tamu.tcat.analytics.datatrax.basic.ExecutionContext.DataAvailableEvent;
+import edu.tamu.tcat.analytics.datatrax.basic.WorkflowExecutionContext.DataAvailableEvent;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 
@@ -192,7 +192,7 @@ public class WorkflowControllerImpl implements WorkflowController
    }
    
    private <X> WorkflowExecutor<X> createExecutor() {
-      ExecutionContext context = new ExecutionContext();
+      WorkflowExecutionContext context = new WorkflowExecutionContext();
       
       Set<TransformerController> controllers = new HashSet<>();
       transformers.forEach((cfgTransformer) -> 
@@ -201,7 +201,7 @@ public class WorkflowControllerImpl implements WorkflowController
       return new WorkflowExecutor<>(context, inputKey, controllers);
    }
 
-   private TransformerController buildTransformerController(ExecutionContext context, ConfiguredTransformer cfgTransformer)
+   private TransformerController buildTransformerController(WorkflowExecutionContext context, ConfiguredTransformer cfgTransformer)
    {
       TransformerConfiguration cfg = cfgTransformer.cfg;
       Transformer transformer = cfgTransformer.transformer;
@@ -247,14 +247,14 @@ public class WorkflowControllerImpl implements WorkflowController
    {
       private final UUID id;
       private final DataValueKey inputKey;
-      private final ExecutionContext context;
+      private final WorkflowExecutionContext context;
       private final Collection<TransformerController> controllers;
       
       private T inputData;
       private ResultsCollector<T> collector;
       private CountDownLatch outputDataLatch;
 
-      private WorkflowExecutor(ExecutionContext context, DataValueKey inputKey, Set<TransformerController> controllers)
+      private WorkflowExecutor(WorkflowExecutionContext context, DataValueKey inputKey, Set<TransformerController> controllers)
       {
          this.id = UUID.randomUUID();
          this.context = context;

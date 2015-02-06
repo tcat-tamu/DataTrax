@@ -16,10 +16,10 @@ import edu.tamu.tcat.analytics.datatrax.WorkflowController;
 
 /**
  *  Used by the {@link WorkflowController} to store the results of data transformation 
- *  operations. The notification system implemented by the {@link ExecutionContext} drives 
+ *  operations. The notification system implemented by the {@link WorkflowExecutionContext} drives 
  *  the execution of new tasks. 
  */
-public class ExecutionContext
+public class WorkflowExecutionContext
 {
    private final static Logger contextLogger = Logger.getLogger("edu.tamu.tcat.datatrax.ex_context");
    
@@ -27,7 +27,7 @@ public class ExecutionContext
    // TODO need JavaType for this thing.
    private final Map<DataValueKey, List<Consumer<DataAvailableEvent>>> listeners = new ConcurrentHashMap<>();
    
-   public ExecutionContext()
+   public WorkflowExecutionContext()
    {
    }
    
@@ -182,7 +182,7 @@ public class ExecutionContext
    }
    
    /**
-    *  @deprecated To be replaced once {@link ExecutionContext#registerListener(DataValueListener)}
+    *  @deprecated To be replaced once {@link WorkflowExecutionContext#registerListener(DataValueListener)}
     *       is no longer used. 
     *
     */
@@ -196,7 +196,7 @@ public class ExecutionContext
       Set<DataValueKey> getKeys();
       
       /**
-       * Called when data is made available to the {@link ExecutionContext}.
+       * Called when data is made available to the {@link WorkflowExecutionContext}.
        *  
        * @param key The {@link DataValueKey} that defines  
        * @param value

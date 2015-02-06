@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.tamu.tcat.analytics.datatrax.DataValueKey;
-import edu.tamu.tcat.analytics.datatrax.basic.ExecutionContext;
+import edu.tamu.tcat.analytics.datatrax.basic.WorkflowExecutionContext;
 import edu.tamu.tcat.analytics.datatrax.basic.SimpleDataValueKey;
 import edu.tamu.tcat.analytics.datatrax.basic.factorymeta.ExtPointTranformerFactoryRegistry;
 
@@ -53,7 +53,7 @@ public class ExecutionContextTests
       String testValue = "Hello World";
       DataValueKey testKey = new SimpleDataValueKey(UUID.randomUUID(), String.class);
       
-      ExecutionContext context = new ExecutionContext();
+      WorkflowExecutionContext context = new WorkflowExecutionContext();
       
       context.put(testKey, testValue);
       String result = (String)context.get(testKey);
@@ -71,7 +71,7 @@ public class ExecutionContextTests
       String testValue = "Hello World";
       DataValueKey testKey = new SimpleDataValueKey(UUID.randomUUID(), String.class);
       
-      ExecutionContext context = new ExecutionContext();
+      WorkflowExecutionContext context = new WorkflowExecutionContext();
       Set<DataValueKey> keys = new HashSet<>();
       keys.add(testKey);
       
@@ -99,7 +99,7 @@ public class ExecutionContextTests
       String testValue = "Hello World";
       DataValueKey testKey = new SimpleDataValueKey(UUID.randomUUID(), String.class);
       
-      ExecutionContext context = new ExecutionContext();
+      WorkflowExecutionContext context = new WorkflowExecutionContext();
       Set<DataValueKey> keys = new HashSet<>();
       keys.add(testKey);
       
@@ -128,7 +128,7 @@ public class ExecutionContextTests
       String testValue = "Hello World";
       DataValueKey testKey = new SimpleDataValueKey(UUID.randomUUID(), String.class);
       
-      ExecutionContext context = new ExecutionContext();
+      WorkflowExecutionContext context = new WorkflowExecutionContext();
       Set<DataValueKey> keys = new HashSet<>();
       keys.add(testKey);
       
@@ -157,7 +157,7 @@ public class ExecutionContextTests
       String testValue2 = "Goodbye World";
       DataValueKey testKey = new SimpleDataValueKey(UUID.randomUUID(), String.class);
       
-      ExecutionContext context = new ExecutionContext();
+      WorkflowExecutionContext context = new WorkflowExecutionContext();
       Set<DataValueKey> keys = new HashSet<>();
       keys.add(testKey);
       
