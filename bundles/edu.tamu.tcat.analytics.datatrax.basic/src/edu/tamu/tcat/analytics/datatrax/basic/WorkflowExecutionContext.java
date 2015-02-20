@@ -122,6 +122,7 @@ public class WorkflowExecutionContext
       if (!listeners.containsKey(key))
          return;
       
+      // TODO notify in own thread
       DataAvailableEvent e = new DataAvailableEvent(key, value);
       List<Consumer<DataAvailableEvent>> ears = listeners.get(key);
       for (Consumer<DataAvailableEvent> ear : ears)
