@@ -1,5 +1,6 @@
 package edu.tamu.tcat.analytics.datatrax;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
@@ -69,5 +70,5 @@ public interface WorkflowController extends AutoCloseable
    /**
     * Blocks current thread until execution of this workflow has completed.
     */
-   void join();
+   void join(int time, TimeUnit units);
 }

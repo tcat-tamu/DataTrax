@@ -111,11 +111,28 @@ public class WorkflowControllerImpl implements WorkflowController
    {
       closed = true;
       
-      taskExector.awaitTermination(10, TimeUnit.SECONDS);
-      workflowExectorService.awaitTermination(10, TimeUnit.SECONDS);
-      
-      throw new UnsupportedOperationException();
-      
+      try 
+      {
+         taskExector.awaitTermination(10, TimeUnit.SECONDS);
+         workflowExectorService.awaitTermination(10, TimeUnit.SECONDS);
+      }
+      catch (Exception ex) 
+      {
+         logger.log(Level.WARNING, "Failed to cleanly shutdown workflow controller. Forcing shutdown now.", ex);
+         try {
+            taskExector.shutdownNow();
+            workflowExectorService.shutdownNow();
+         }
+         catch (Exception e)
+         {
+            logger.log(Level.SEVERE, "Error attempting to forcibly shutdown workflow controller.", e);
+         }
+      }
+      finally
+      {
+         taskExector = null;
+         workflowExectorService = null;
+      }
    }
 
    private void handleError(ResultsCollector<?> collector, final Exception ex)
@@ -172,12 +189,11 @@ public class WorkflowControllerImpl implements WorkflowController
    }
    
    @Override
-   public void join()
+   public void join(int time, TimeUnit units)
    {
       try
       {
-         // HACK magic numbers
-         workflowExectorService.awaitTermination(7, TimeUnit.DAYS);
+         workflowExectorService.awaitTermination(time, units);
       }
       catch (InterruptedException e)
       {
