@@ -38,7 +38,7 @@ public class SimpleTransformerConfig implements TransformerConfiguration, Transf
    private TransformerConfigData data;
    private TransformerRegistration registration;
 
-   private SimpleTransformerConfig(TransformerConfigData data, TransformerRegistration reg)
+   public SimpleTransformerConfig(TransformerConfigData data, TransformerRegistration reg)
    {
       this.data = data;
       this.registration = reg;

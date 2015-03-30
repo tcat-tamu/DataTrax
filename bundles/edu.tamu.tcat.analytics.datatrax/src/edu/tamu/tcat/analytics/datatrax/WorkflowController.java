@@ -1,5 +1,8 @@
 package edu.tamu.tcat.analytics.datatrax;
 
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 
 /**
@@ -46,11 +49,12 @@ public interface WorkflowController extends AutoCloseable
     * will return immediately, but it may block if there are no available resources to accept
     * the supplied data. 
     * 
-    * @param sourceData The input data instance to be processed by this workflow.
+    * @param sourceData The input data instance to be processed by this workflow. Must be thread 
+    *       safe.
     * @param collector The {@link ResultsCollector} to be used to accumlulate the outputs
     *       of this workflow.
     */
-   <X> void process(X sourceData, ResultsCollector collector);
+   <X> void process(Supplier<X> sourceData, ResultsCollector<X> collector);
    
    /**
     * Registers an observer to be notified of various events during the workflow lifecycle.
@@ -62,4 +66,9 @@ public interface WorkflowController extends AutoCloseable
     */
    AutoCloseable addListener(WorkflowObserver ears);
    // TODO consider adding more specific methods
+
+   /**
+    * Blocks current thread until execution of this workflow has completed.
+    */
+   void join(int time, TimeUnit units);
 }

@@ -1,5 +1,6 @@
 package edu.tamu.tcat.analytics.datatrax;
 
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -24,6 +25,29 @@ import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 public interface Transformer
 {
 
+   public static boolean hasValue(Map<String, Object> config, String key)
+   {
+      return config.containsKey(key) && config.get(key) != null;
+   }
+   
+   @SuppressWarnings("unchecked") // for performance reasons
+   public static <X> X getValue(Map<String, Object> config, String key, Class<X> type) throws TransformerConfigurationException
+   {
+      if (!hasValue(config, key))
+         throw new TransformerConfigurationException("No value is defined for key [" + key + "]");
+      
+      try 
+      {
+         return (X)config.get(key);
+      }
+      catch (ClassCastException cce)
+      {
+         String template = "Invalid value [{0}] for key [{1}]. Expected instance of [{2}]";
+         String msg = MessageFormat.format(template, config.get(key), key, type.getName());
+         throw new TransformerConfigurationException(msg, cce);
+      }
+   }
+   
    /**
     * Provides configuration data to be used to parameterize this Transformer.
     * 
@@ -58,7 +82,7 @@ public interface Transformer
     * (for example, on configuration parameters) or other external data sources only if all
     * required invariants are stable over time.  
     * 
-    * @param ctx A data context object for use in retrieving any supplied source data.
+    * @param ctx A data context object for use in retrieving any supplied source data. 
     * @return A data processor that will be scheduled to run by the {@link WorkflowController}.
     */
    Callable<?> create(TransformerContext ctx);

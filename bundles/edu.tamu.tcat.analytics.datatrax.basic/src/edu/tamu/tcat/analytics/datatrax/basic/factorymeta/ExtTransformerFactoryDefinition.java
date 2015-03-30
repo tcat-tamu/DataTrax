@@ -3,6 +3,7 @@ package edu.tamu.tcat.analytics.datatrax.basic.factorymeta;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -11,9 +12,11 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
 import edu.tamu.tcat.analytics.datatrax.Transformer;
+import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.config.DataInputPin;
 import edu.tamu.tcat.analytics.datatrax.config.FactoryConfigurationException;
+import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 
 /**
  * Wraps a transformer factory's plugin metadata declaration to provide an API for querying and 
@@ -106,6 +109,7 @@ public class ExtTransformerFactoryDefinition implements TransformerRegistration
     *       evaluation of the supplied type. Note that this includes the case when the bundle
     *       that supplies this factory is no longer available.
     */
+   @Override
    public boolean canAccept(Class<?> type) 
    {
       for (DataInputPin pin : inputPins)
@@ -129,17 +133,21 @@ public class ExtTransformerFactoryDefinition implements TransformerRegistration
     *       evaluation of the supplied type. Note that this includes the case when the bundle
     *       that supplies this factory is no longer available.
     */
+   @Override
    public boolean canProduce(Class<?> type) throws FactoryConfigurationException
    {
       Class<?> declaredOutputType = getDeclaredOutputType();
       return type.isAssignableFrom(declaredOutputType);
    }
    
-   public Transformer instantiate() throws FactoryConfigurationException
+   @Override
+   public Transformer instantiate(TransformerConfiguration cfg) throws FactoryConfigurationException
    {
       try
       {
          Transformer factory = (Transformer)config.createExecutableExtension("class");
+         factory.configure(cfg.getDefinedParameters().parallelStream()
+               .collect(Collectors.toMap(key -> key, key -> cfg.getParameter(key))));
          return factory;
       }
       catch (CoreException e)
@@ -148,8 +156,12 @@ public class ExtTransformerFactoryDefinition implements TransformerRegistration
                + ". Could intantiate factory instance.";
          throw new IllegalStateException(msg, e);
       }
+      catch (TransformerConfigurationException e)
+      {
+         throw new FactoryConfigurationException("Failed to configure transformer [" + config.getAttribute("class") + "]. Invalid configuration data.", e);
+      }
    }
-
+   
    @Override
    public String toString()
    {

@@ -1,9 +1,7 @@
 package edu.tamu.tcat.analytics.datatrax.basic;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -11,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,7 +22,7 @@ import edu.tamu.tcat.analytics.datatrax.TransformerConfigurationException;
 import edu.tamu.tcat.analytics.datatrax.TransformerRegistration;
 import edu.tamu.tcat.analytics.datatrax.WorkflowController;
 import edu.tamu.tcat.analytics.datatrax.WorkflowObserver;
-import edu.tamu.tcat.analytics.datatrax.basic.ExecutionContext.DataAvailableEvent;
+import edu.tamu.tcat.analytics.datatrax.basic.WorkflowExecutionContext.DataAvailableEvent;
 import edu.tamu.tcat.analytics.datatrax.config.TransformerConfiguration;
 import edu.tamu.tcat.analytics.datatrax.config.WorkflowConfiguration;
 
@@ -71,28 +70,30 @@ public class WorkflowControllerImpl implements WorkflowController
    private final WorkflowConfiguration config;
    private final Set<ConfiguredTransformer> transformers;
 
+   private volatile boolean closed = false;
+   
    private WorkflowControllerImpl(WorkflowConfiguration config, Set<ConfiguredTransformer> transformers)
    {
-      // TODO add
       this.config = config;
       this.transformers = transformers;
       this.inputKey = config.getInputKey();
       
+//      taskExector = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Task {0}").build());
+//      workflowExectorService = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("Data Processor {0}").build()); // HACK.newCachedThreadPool();
       taskExector = Executors.newCachedThreadPool();
-      workflowExectorService = Executors.newCachedThreadPool();
+      workflowExectorService = Executors.newFixedThreadPool(1); // HACK.newCachedThreadPool();
    }
    
    public static WorkflowControllerImpl create(WorkflowConfiguration config) throws TransformerConfigurationException
    {
       // TODO probably need to tune these to prevent poor thread usage. Need to investigate work-stealing 
-      
+      // TODO need to supply better exception
       Set<ConfiguredTransformer> transformers = new HashSet<>();
       Collection<TransformerConfiguration> tConfigs = config.getTransformers();
       for (TransformerConfiguration cfg : tConfigs)
       {
          TransformerRegistration registration = cfg.getRegistration();
-         Transformer transformer = registration.instantiate();
-         transformer.configure(getParams(cfg));                         // TODO create a parameter bag or something similar?
+         Transformer transformer = registration.instantiate(cfg);
          
          transformers.add(new ConfiguredTransformer(cfg, transformer));
       }
@@ -100,34 +101,41 @@ public class WorkflowControllerImpl implements WorkflowController
       return new WorkflowControllerImpl(config, transformers);
    }
    
-   private static Map<String, Object> getParams(TransformerConfiguration cfg)
-   {
-      Map<String, Object> params = new HashMap<>();
-      for (String key : cfg.getDefinedParameters())
-      {
-         params.put(key, cfg.getParameter(key));
-      }
-      
-      return params;
-   }
-   
    private void execute(Runnable task)
    {
       taskExector.submit(task);
    }
-
+   
    @Override
    public void close() throws Exception
    {
-      // TODO Auto-generated method stub
-      taskExector.awaitTermination(10, TimeUnit.SECONDS);
-      workflowExectorService.awaitTermination(10, TimeUnit.SECONDS);
+      closed = true;
       
-      throw new UnsupportedOperationException();
-      
+      try 
+      {
+         taskExector.awaitTermination(10, TimeUnit.SECONDS);
+         workflowExectorService.awaitTermination(10, TimeUnit.SECONDS);
+      }
+      catch (Exception ex) 
+      {
+         logger.log(Level.WARNING, "Failed to cleanly shutdown workflow controller. Forcing shutdown now.", ex);
+         try {
+            taskExector.shutdownNow();
+            workflowExectorService.shutdownNow();
+         }
+         catch (Exception e)
+         {
+            logger.log(Level.SEVERE, "Error attempting to forcibly shutdown workflow controller.", e);
+         }
+      }
+      finally
+      {
+         taskExector = null;
+         workflowExectorService = null;
+      }
    }
 
-   private void handleError(ResultsCollector collector, final Exception ex)
+   private void handleError(ResultsCollector<?> collector, final Exception ex)
    {
       if (collector == null)
          return;
@@ -153,48 +161,64 @@ public class WorkflowControllerImpl implements WorkflowController
    }
    
    @Override
-   public <X> void process(X sourceData, ResultsCollector collector)
+   public <X> void process(Supplier<X> sourceData, ResultsCollector<X> collector)
    {
-      Objects.requireNonNull(sourceData, "Null source data input");
+      // TODO Question: supply just one value? 
       
-      workflowExectorService.submit(new Runnable()
+      Objects.requireNonNull(sourceData, "Null source data input");
+      if (closed)
+         throw new IllegalStateException("This workflow controller has been closed");
+      
+      workflowExectorService.submit(() ->
       {
-         @Override
-         public void run()
+         try 
          {
-            // FIXME check to ensure this hasn't been closed
-            try 
-            {
-               WorkflowExecutor workflow = createExecutor(); 
-               workflow.process(sourceData, collector);
-            }
-            catch (Exception ex)
-            {
-               logger.log(Level.SEVERE, "Failed to execute workflow.", ex);
-               handleError(collector, ex);
-            }
+            if (closed)
+               throw new IllegalStateException("This workflow controller has been closed");
+            
+            // pull the data from supplier once the executor has begun processing
+            WorkflowExecutor<X> workflow = createExecutor(); 
+            workflow.process(sourceData.get(), collector);
+         }
+         catch (Exception ex)
+         {
+            logger.log(Level.SEVERE, "Failed to execute workflow.", ex);
+            handleError(collector, ex);
          }
       });
+   }
+   
+   @Override
+   public void join(int time, TimeUnit units)
+   {
+      try
+      {
+         workflowExectorService.shutdown();
+         workflowExectorService.awaitTermination(time, units);
+      }
+      catch (InterruptedException e)
+      {
+         throw new IllegalStateException("Failed to wait until completion", e);
+      }
    }
 
    @Override
    public AutoCloseable addListener(WorkflowObserver ears)
    {
-      // TODO Auto-generated method stub
-      return null;
+      throw new UnsupportedOperationException();
    }
    
-   private WorkflowExecutor createExecutor() {
-      ExecutionContext context = new ExecutionContext();
+   private <X> WorkflowExecutor<X> createExecutor() {
+      WorkflowExecutionContext context = new WorkflowExecutionContext();
       
       Set<TransformerController> controllers = new HashSet<>();
       transformers.forEach((cfgTransformer) -> 
             controllers.add(buildTransformerController(context, cfgTransformer)));
       
-      return new WorkflowExecutor(context, inputKey, controllers);
+      return new WorkflowExecutor<>(context, inputKey, controllers);
    }
 
-   private TransformerController buildTransformerController(ExecutionContext context, ConfiguredTransformer cfgTransformer)
+   private TransformerController buildTransformerController(WorkflowExecutionContext context, ConfiguredTransformer cfgTransformer)
    {
       TransformerConfiguration cfg = cfgTransformer.cfg;
       Transformer transformer = cfgTransformer.transformer;
@@ -223,23 +247,31 @@ public class WorkflowControllerImpl implements WorkflowController
    /**
     * Responsible for processing a single data instance through the workflow that has been 
     * instantiated by the {@link WorkflowControllerImpl} and for exporting the final data results 
-    * defined in the {@code WorkflowConfiguration}. Upon instantiation, the WorkflowExecutor will create a single ExecutionContext that will be used to store the in-process results of different data transformations, along with a TransformerExecutionController corresponding to each Transformer declared in the WorkflowConfiguration. The data transformation process will be initiated by setting the initial source data instance into the ExecutionContext, thereby causing the TransformerExecutionControllers that rely only on this source data instance to activate.
-   The WorkflowExecutor is supplied with a Java ExecutorService by the WorkflowController to be used when executing TransformerTasks.
-
+    * defined in the {@code WorkflowConfiguration}.
+    * 
+    *  Upon instantiation, the WorkflowExecutor will create a single ExecutionContext that 
+    *  will be used to store the in-process results of different data transformations, along 
+    *  with a TransformerExecutionController corresponding to each 
+    *  Transformer declared in the WorkflowConfiguration. The data transformation process will 
+    *  be initiated by setting the initial source data instance into the ExecutionContext, 
+    *  thereby causing the TransformerExecutionControllers that rely only on this source 
+    *  data instance to activate.
+    *  
+    *  The WorkflowExecutor is supplied with a Java ExecutorService by the 
+    *  WorkflowController to be used when executing TransformerTasks.
     */
-   private class WorkflowExecutor
+   private class WorkflowExecutor<T>
    {
       private final UUID id;
       private final DataValueKey inputKey;
-      private final ExecutionContext context;
+      private final WorkflowExecutionContext context;
       private final Collection<TransformerController> controllers;
       
-      
-      private Object inputData;
-      private ResultsCollector collector;
+      private T inputData;
+      private ResultsCollector<T> collector;
       private CountDownLatch outputDataLatch;
 
-      private WorkflowExecutor(ExecutionContext context, DataValueKey inputKey, Set<TransformerController> controllers)
+      private WorkflowExecutor(WorkflowExecutionContext context, DataValueKey inputKey, Set<TransformerController> controllers)
       {
          this.id = UUID.randomUUID();
          this.context = context;
@@ -247,9 +279,23 @@ public class WorkflowControllerImpl implements WorkflowController
          this.controllers = controllers;     // unneeded
       }
       
-      void process(Object data, ResultsCollector collector)
+      private void shutdown()
       {
-         Objects.requireNonNull(collector, "Input data must not be null.");
+         try 
+         {
+            collector.finished();
+         }
+         catch (Exception ex)
+         {
+            logger.log(Level.WARNING, "Notification of results collector of workflow completion failed.", ex);
+         }
+         
+         context.close();
+      }
+      
+      void process(T data, ResultsCollector<T> collector)
+      {
+         Objects.requireNonNull(data, "Input data must not be null.");
          Objects.requireNonNull(collector, "No results collector supplied.");
          
          this.inputData = data;
@@ -262,29 +308,31 @@ public class WorkflowControllerImpl implements WorkflowController
          
          // stitch together error handling and execution completion
          
+         // TODO add validation to ensure that this will wake up something
          context.put(inputKey, data);
          
          awaitCompletion();
+         shutdown();
       }
 
       private void awaitCompletion()
       {
          try 
          {
-            outputDataLatch.await();       // TODO provide timeout, support cancellation
-            collector.finished();
+            // TODO provide timeout, support cancellation
+            outputDataLatch.await();       
          }
          catch (Exception ex)
          {
             // handle exceptions from the supplied collector.
-            logger.log(Level.WARNING, "Notification of results collector of workflow completion failed. ", ex);
+            logger.log(Level.SEVERE, "Failed to complete.", ex);
          }
       }
       
       private void onDataAvailable(DataAvailableEvent evt)
       {
          DataValueKey key = evt.getKey();
-         TranformationResult result = new TransResultImpl(key, evt.getValue(), inputData);
+         TranformationResult<T> result = new TransResultImpl<>(key, evt.getValue(), inputData);
          try
          {
             collector.handleResult(result);
@@ -299,13 +347,13 @@ public class WorkflowControllerImpl implements WorkflowController
       }
    }
    
-   private final class TransResultImpl implements TranformationResult
+   private final class TransResultImpl<SourceType> implements TranformationResult<SourceType>
    {
       private final DataValueKey key;
       private final Object value;
-      private final Object src;
+      private final SourceType src;
       
-      TransResultImpl(DataValueKey key, Object value, Object src)
+      TransResultImpl(DataValueKey key, Object value, SourceType src)
       {
          this.key = key;
          this.value = value;
@@ -325,7 +373,7 @@ public class WorkflowControllerImpl implements WorkflowController
       }
 
       @Override
-      public Object getSource()
+      public SourceType getSource()
       {
          return src;
       }
