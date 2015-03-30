@@ -193,6 +193,7 @@ public class WorkflowControllerImpl implements WorkflowController
    {
       try
       {
+         workflowExectorService.shutdown();
          workflowExectorService.awaitTermination(time, units);
       }
       catch (InterruptedException e)
